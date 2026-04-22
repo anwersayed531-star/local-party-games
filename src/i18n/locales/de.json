@@ -1,0 +1,58 @@
+{
+  "app": {
+    "title": "🎮 Game Hub",
+    "subtitle": "Klassische Spiele mit elegantem Design",
+    "footer": "Classic Games Collection v1.0"
+  },
+  "games": {
+    "xo": { "title": "XO", "subtitle": "Tic Tac Toe" },
+    "chess": { "title": "Schach", "subtitle": "Strategie" },
+    "ludo": { "title": "Ludo", "subtitle": "Brettspiel" }
+  },
+  "common": {
+    "back": "Zurück",
+    "restart": "Neustart",
+    "settings": "Einstellungen",
+    "newGame": "Neues Spiel",
+    "vsHuman": "2 Spieler",
+    "vsComputer": "gegen Computer",
+    "easy": "Einfach",
+    "medium": "Mittel",
+    "hard": "Schwer",
+    "you": "Du",
+    "computer": "Computer",
+    "player": "Spieler",
+    "language": "Sprache"
+  },
+  "settings": {
+    "sound": "Soundeffekte",
+    "music": "Hintergrundmusik",
+    "title": "Einstellungen"
+  },
+  "xo": {
+    "gridSize": "Rastergröße",
+    "symbols": "Symbole",
+    "wins": "gewinnt!",
+    "draw": "Unentschieden!",
+    "turn": "Zug"
+  },
+  "chess": {
+    "checkmate": "Schachmatt!",
+    "stalemate": "Patt!",
+    "check": "Schach!",
+    "white": "Weiß",
+    "black": "Schwarz",
+    "theme": "Brett-Thema",
+    "wood": "Holz",
+    "marble": "Marmor",
+    "plain": "Einfach"
+  },
+  "ludo": {
+    "rollDice": "Würfeln",
+    "winner": "Gewinner",
+    "red": "Rot",
+    "blue": "Blau",
+    "green": "Grün",
+    "yellow": "Gelb"
+  }
+}

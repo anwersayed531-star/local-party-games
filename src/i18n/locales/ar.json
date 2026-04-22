@@ -1,0 +1,58 @@
+{
+  "app": {
+    "title": "🎮 Game Hub",
+    "subtitle": "ألعاب كلاسيكية بتصميم أنيق",
+    "footer": "Classic Games Collection v1.0"
+  },
+  "games": {
+    "xo": { "title": "XO", "subtitle": "تيك تاك تو" },
+    "chess": { "title": "شطرنج", "subtitle": "Chess" },
+    "ludo": { "title": "لودو", "subtitle": "Ludo" }
+  },
+  "common": {
+    "back": "رجوع",
+    "restart": "إعادة",
+    "settings": "الإعدادات",
+    "newGame": "لعبة جديدة",
+    "vsHuman": "لاعبان",
+    "vsComputer": "ضد الكمبيوتر",
+    "easy": "سهل",
+    "medium": "متوسط",
+    "hard": "صعب",
+    "you": "أنت",
+    "computer": "الكمبيوتر",
+    "player": "اللاعب",
+    "language": "اللغة"
+  },
+  "settings": {
+    "sound": "مؤثرات صوتية",
+    "music": "موسيقى خلفية",
+    "title": "الإعدادات"
+  },
+  "xo": {
+    "gridSize": "حجم الشبكة",
+    "symbols": "الرموز",
+    "wins": "فاز!",
+    "draw": "تعادل!",
+    "turn": "دور"
+  },
+  "chess": {
+    "checkmate": "كش ملك!",
+    "stalemate": "تعادل!",
+    "check": "كش!",
+    "white": "الأبيض",
+    "black": "الأسود",
+    "theme": "ثيم اللوحة",
+    "wood": "خشبي",
+    "marble": "رخامي",
+    "plain": "بسيط"
+  },
+  "ludo": {
+    "rollDice": "ارمِ النرد",
+    "winner": "الفائز",
+    "red": "أحمر",
+    "blue": "أزرق",
+    "green": "أخضر",
+    "yellow": "أصفر"
+  }
+}
