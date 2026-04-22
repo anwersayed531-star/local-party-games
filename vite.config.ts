@@ -25,6 +25,6 @@ export default defineConfig(({ mode }) => ({
     outDir: "dist",
     sourcemap: false,
     minify: "esbuild",
-    target: "es2018",
+    target: "es2020",
   },
 }));
