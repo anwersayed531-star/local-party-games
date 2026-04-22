@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Settings, Dice5, Grid3X3, Crown } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import SettingsDialog from "@/components/SettingsDialog";
 
 const games = [
