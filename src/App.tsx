@@ -7,6 +7,10 @@ import Index from "./pages/Index";
 import XOGame from "./pages/XOGame";
 import ChessGame from "./pages/ChessGame";
 import LudoGame from "./pages/LudoGame";
+import OnlineLobby from "./pages/OnlineLobby";
+import OnlineMatch from "./pages/OnlineMatch";
+import Leaderboard from "./pages/Leaderboard";
+import Tournaments from "./pages/Tournaments";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +26,11 @@ const App = () => (
           <Route path="/xo" element={<XOGame />} />
           <Route path="/chess" element={<ChessGame />} />
           <Route path="/ludo" element={<LudoGame />} />
+          <Route path="/online/:game" element={<OnlineLobby />} />
+          <Route path="/online/:game/:matchId" element={<OnlineMatch />} />
+          <Route path="/leaderboard/:game" element={<Leaderboard />} />
+          <Route path="/tournaments" element={<Tournaments />} />
+          <Route path="/tournaments/:game" element={<Tournaments />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -1,58 +1,30 @@
 {
-  "app": {
-    "title": "🎮 Game Hub",
-    "subtitle": "Classic games with elegant design",
-    "footer": "Classic Games Collection v1.0"
-  },
-  "games": {
-    "xo": { "title": "XO", "subtitle": "Tic Tac Toe" },
-    "chess": { "title": "Chess", "subtitle": "Strategy" },
-    "ludo": { "title": "Ludo", "subtitle": "Board Game" }
-  },
-  "common": {
-    "back": "Back",
-    "restart": "Restart",
-    "settings": "Settings",
-    "newGame": "New Game",
-    "vsHuman": "2 Players",
-    "vsComputer": "vs Computer",
-    "easy": "Easy",
-    "medium": "Medium",
-    "hard": "Hard",
-    "you": "You",
-    "computer": "Computer",
-    "player": "Player",
-    "language": "Language"
-  },
-  "settings": {
-    "sound": "Sound effects",
-    "music": "Background music",
-    "title": "Settings"
-  },
-  "xo": {
-    "gridSize": "Grid size",
-    "symbols": "Symbols",
-    "wins": "wins!",
-    "draw": "Draw!",
-    "turn": "Turn"
-  },
-  "chess": {
-    "checkmate": "Checkmate!",
-    "stalemate": "Stalemate!",
-    "check": "Check!",
-    "white": "White",
-    "black": "Black",
-    "theme": "Board theme",
-    "wood": "Wood",
-    "marble": "Marble",
-    "plain": "Plain"
-  },
-  "ludo": {
-    "rollDice": "Roll Dice",
-    "winner": "Winner",
-    "red": "Red",
-    "blue": "Blue",
-    "green": "Green",
-    "yellow": "Yellow"
+  "app": { "title": "🎮 Game Hub", "subtitle": "Classic games with elegant design", "footer": "Classic Games Collection v1.0" },
+  "games": { "xo": { "title": "XO", "subtitle": "Tic Tac Toe" }, "chess": { "title": "Chess", "subtitle": "Strategy" }, "ludo": { "title": "Ludo", "subtitle": "Board Game" } },
+  "common": { "back": "Back", "restart": "Restart", "settings": "Settings", "newGame": "New Game", "vsHuman": "2 Players", "vsComputer": "vs Computer", "easy": "Easy", "medium": "Medium", "hard": "Hard", "you": "You", "computer": "Computer", "player": "Player", "language": "Language" },
+  "settings": { "sound": "Sound effects", "music": "Background music", "title": "Settings" },
+  "xo": { "gridSize": "Grid size", "symbols": "Symbols", "wins": "wins!", "draw": "Draw!", "turn": "Turn" },
+  "chess": { "checkmate": "Checkmate!", "stalemate": "Stalemate!", "check": "Check!", "white": "White", "black": "Black", "theme": "Board theme", "wood": "Wood", "marble": "Marble", "plain": "Plain" },
+  "ludo": { "rollDice": "Roll Dice", "winner": "Winner", "red": "Red", "blue": "Blue", "green": "Green", "yellow": "Yellow" },
+  "home": { "online": "Online", "ranking": "Ranking", "viewTournaments": "Tournaments" },
+  "online": {
+    "title": "Play Online", "subtitle": "Play with real players from around the world",
+    "matchmaking": "Quick Match", "matchmakingDesc": "Find an opponent right now", "findOpponent": "Find Opponent",
+    "privateRoom": "Private Room", "privateRoomDesc": "Play with a friend using a room code",
+    "createRoom": "Create Room", "join": "Join", "codePlaceholder": "Room code",
+    "leaderboard": "Top Players", "tournaments": "Tournaments", "tournamentsDesc": "Compete for prizes and ranks",
+    "noTournaments": "No tournaments available", "noPlayersYet": "No players yet, be the first!",
+    "joinTournament": "Join Tournament", "joined": "Joined", "joinError": "Could not join", "play": "Play",
+    "tStatus": { "open": "Open", "running": "Running", "finished": "Finished" },
+    "chooseNickname": "Choose a Nickname", "chooseNicknameDesc": "This is what other players will see",
+    "nicknamePlaceholder": "Your nickname", "nicknameTooShort": "Name is too short (min 2 chars)",
+    "nicknameError": "Could not save nickname, try again", "continue": "Continue", "playingAs": "Playing as",
+    "matchError": "Could not create or join match", "invalidCode": "Invalid code",
+    "roomNotFound": "Room not found", "roomFull": "Room is full or finished",
+    "waitingOpponent": "Waiting for opponent...", "shareCode": "Share this code with your friend", "codeCopied": "Code copied",
+    "you": "you", "youWon": "🎉 You won!", "youLost": "You lost! Better luck next time",
+    "draw": "Draw", "matchEnded": "Match ended",
+    "notYourTurn": "Not your turn yet", "opponentTurn": "Opponent's turn...",
+    "ludoOnlineSoon": "Online Ludo coming soon — try Chess or XO online now"
   }
 }

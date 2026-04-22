@@ -1,58 +1,30 @@
 {
-  "app": {
-    "title": "🎮 Game Hub",
-    "subtitle": "Klassische Spiele mit elegantem Design",
-    "footer": "Classic Games Collection v1.0"
-  },
-  "games": {
-    "xo": { "title": "XO", "subtitle": "Tic Tac Toe" },
-    "chess": { "title": "Schach", "subtitle": "Strategie" },
-    "ludo": { "title": "Ludo", "subtitle": "Brettspiel" }
-  },
-  "common": {
-    "back": "Zurück",
-    "restart": "Neustart",
-    "settings": "Einstellungen",
-    "newGame": "Neues Spiel",
-    "vsHuman": "2 Spieler",
-    "vsComputer": "gegen Computer",
-    "easy": "Einfach",
-    "medium": "Mittel",
-    "hard": "Schwer",
-    "you": "Du",
-    "computer": "Computer",
-    "player": "Spieler",
-    "language": "Sprache"
-  },
-  "settings": {
-    "sound": "Soundeffekte",
-    "music": "Hintergrundmusik",
-    "title": "Einstellungen"
-  },
-  "xo": {
-    "gridSize": "Rastergröße",
-    "symbols": "Symbole",
-    "wins": "gewinnt!",
-    "draw": "Unentschieden!",
-    "turn": "Zug"
-  },
-  "chess": {
-    "checkmate": "Schachmatt!",
-    "stalemate": "Patt!",
-    "check": "Schach!",
-    "white": "Weiß",
-    "black": "Schwarz",
-    "theme": "Brett-Thema",
-    "wood": "Holz",
-    "marble": "Marmor",
-    "plain": "Einfach"
-  },
-  "ludo": {
-    "rollDice": "Würfeln",
-    "winner": "Gewinner",
-    "red": "Rot",
-    "blue": "Blau",
-    "green": "Grün",
-    "yellow": "Gelb"
+  "app": { "title": "🎮 Game Hub", "subtitle": "Klassische Spiele mit elegantem Design", "footer": "Classic Games Collection v1.0" },
+  "games": { "xo": { "title": "XO", "subtitle": "Tic Tac Toe" }, "chess": { "title": "Schach", "subtitle": "Strategie" }, "ludo": { "title": "Ludo", "subtitle": "Brettspiel" } },
+  "common": { "back": "Zurück", "restart": "Neustart", "settings": "Einstellungen", "newGame": "Neues Spiel", "vsHuman": "2 Spieler", "vsComputer": "gegen Computer", "easy": "Einfach", "medium": "Mittel", "hard": "Schwer", "you": "Du", "computer": "Computer", "player": "Spieler", "language": "Sprache" },
+  "settings": { "sound": "Soundeffekte", "music": "Hintergrundmusik", "title": "Einstellungen" },
+  "xo": { "gridSize": "Rastergröße", "symbols": "Symbole", "wins": "gewinnt!", "draw": "Unentschieden!", "turn": "Zug" },
+  "chess": { "checkmate": "Schachmatt!", "stalemate": "Patt!", "check": "Schach!", "white": "Weiß", "black": "Schwarz", "theme": "Brett-Thema", "wood": "Holz", "marble": "Marmor", "plain": "Einfach" },
+  "ludo": { "rollDice": "Würfeln", "winner": "Gewinner", "red": "Rot", "blue": "Blau", "green": "Grün", "yellow": "Gelb" },
+  "home": { "online": "Online", "ranking": "Rangliste", "viewTournaments": "Turniere" },
+  "online": {
+    "title": "Online spielen", "subtitle": "Spiele mit echten Gegnern aus aller Welt",
+    "matchmaking": "Schnelles Spiel", "matchmakingDesc": "Finde sofort einen Gegner", "findOpponent": "Gegner suchen",
+    "privateRoom": "Privater Raum", "privateRoomDesc": "Spiele mit einem Freund per Code",
+    "createRoom": "Raum erstellen", "join": "Beitreten", "codePlaceholder": "Raumcode",
+    "leaderboard": "Top-Spieler", "tournaments": "Turniere", "tournamentsDesc": "Spiele um Preise und Ränge",
+    "noTournaments": "Keine Turniere verfügbar", "noPlayersYet": "Noch keine Spieler, sei der Erste!",
+    "joinTournament": "Turnier beitreten", "joined": "Beigetreten", "joinError": "Beitritt fehlgeschlagen", "play": "Spielen",
+    "tStatus": { "open": "Offen", "running": "Läuft", "finished": "Beendet" },
+    "chooseNickname": "Spitznamen wählen", "chooseNicknameDesc": "Andere Spieler sehen diesen Namen",
+    "nicknamePlaceholder": "Dein Spitzname", "nicknameTooShort": "Name zu kurz (mind. 2 Zeichen)",
+    "nicknameError": "Speichern fehlgeschlagen", "continue": "Weiter", "playingAs": "Du spielst als",
+    "matchError": "Spiel konnte nicht erstellt werden", "invalidCode": "Ungültiger Code",
+    "roomNotFound": "Raum nicht gefunden", "roomFull": "Raum voll oder beendet",
+    "waitingOpponent": "Warte auf Gegner...", "shareCode": "Teile diesen Code mit deinem Freund", "codeCopied": "Code kopiert",
+    "you": "du", "youWon": "🎉 Du hast gewonnen!", "youLost": "Verloren! Nächstes Mal klappt's",
+    "draw": "Unentschieden", "matchEnded": "Spiel beendet",
+    "notYourTurn": "Du bist noch nicht dran", "opponentTurn": "Gegner ist dran...",
+    "ludoOnlineSoon": "Ludo online bald — spiele jetzt Schach oder XO"
   }
 }
