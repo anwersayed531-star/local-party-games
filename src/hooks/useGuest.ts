@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+const sb = supabase as any;
 const GUEST_KEY = "game-hub-guest";
 
 export interface Guest {
@@ -21,12 +22,12 @@ export function useGuest() {
   const [guest, setGuest] = useState<Guest | null>(() => loadStored());
   const [loading, setLoading] = useState(false);
 
-  // Touch last_seen on mount if we already have a guest
   useEffect(() => {
     if (guest) {
-      supabase.from("guests").update({ last_seen: new Date().toISOString() }).eq("id", guest.id).then(() => {});
+      sb.from("guests").update({ last_seen: new Date().toISOString() }).eq("id", guest.id).then(() => {});
     }
-  }, []); // eslint-disable-line
+    // eslint-disable-next-line
+  }, []);
 
   const createOrUpdateGuest = async (nickname: string): Promise<Guest | null> => {
     const trimmed = nickname.trim();
@@ -34,39 +35,38 @@ export function useGuest() {
     setLoading(true);
     try {
       if (guest) {
-        const { data, error } = await supabase
+        const { data, error } = await sb
           .from("guests")
           .update({ nickname: trimmed, last_seen: new Date().toISOString() })
           .eq("id", guest.id)
           .select()
           .maybeSingle();
         if (error || !data) {
-          // record may have been removed; create new
-          const { data: created } = await supabase
+          const { data: created } = await sb
             .from("guests")
             .insert({ nickname: trimmed })
             .select()
             .single();
           if (created) {
-            const g = { id: created.id, nickname: created.nickname };
+            const g: Guest = { id: created.id, nickname: created.nickname };
             localStorage.setItem(GUEST_KEY, JSON.stringify(g));
             setGuest(g);
             return g;
           }
           return null;
         }
-        const g = { id: data.id, nickname: data.nickname };
+        const g: Guest = { id: data.id, nickname: data.nickname };
         localStorage.setItem(GUEST_KEY, JSON.stringify(g));
         setGuest(g);
         return g;
       } else {
-        const { data, error } = await supabase
+        const { data, error } = await sb
           .from("guests")
           .insert({ nickname: trimmed })
           .select()
           .single();
         if (error || !data) return null;
-        const g = { id: data.id, nickname: data.nickname };
+        const g: Guest = { id: data.id, nickname: data.nickname };
         localStorage.setItem(GUEST_KEY, JSON.stringify(g));
         setGuest(g);
         return g;
