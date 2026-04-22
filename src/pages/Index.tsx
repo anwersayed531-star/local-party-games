@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Settings, Dice5, Grid3X3, Crown } from "lucide-react";
+import { Settings, Dice5, Grid3X3, Crown, Globe, Trophy } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import SettingsDialog from "@/components/SettingsDialog";
@@ -46,7 +46,7 @@ const Index = () => {
         <Settings className="w-5 h-5 text-gold" />
       </button>
 
-      <div className="text-center mb-8 sm:mb-12 animate-fade-in">
+      <div className="text-center mb-6 sm:mb-10 animate-fade-in">
         <h1 className="text-3xl sm:text-5xl font-bold text-gold mb-2 tracking-wider" style={{ fontFamily: "'Cinzel', serif" }}>
           {t("app.title")}
         </h1>
@@ -58,23 +58,50 @@ const Index = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 w-full max-w-3xl px-2">
         {gameDefs.map((game, i) => (
-          <button
+          <div
             key={game.id}
-            onClick={() => navigate(game.path)}
-            className={`group relative rounded-xl border-2 ${game.border} bg-gradient-to-br ${game.color} p-6 sm:p-8 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-amber-900/20 backdrop-blur-sm animate-fade-in`}
+            className={`group relative rounded-xl border-2 ${game.border} bg-gradient-to-br ${game.color} p-5 sm:p-6 backdrop-blur-sm animate-fade-in flex flex-col`}
             style={{ animationDelay: `${i * 100}ms` }}
           >
-            <div className="absolute inset-0 rounded-xl border border-gold opacity-0 group-hover:opacity-30 transition-opacity" />
-            <game.icon className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-gold group-hover:scale-110 transition-transform" />
-            <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1" style={{ fontFamily: "'Cinzel', serif" }}>
-              {t(`games.${game.id}.title`)}
-            </h2>
-            <p className="text-muted-foreground text-xs sm:text-sm">{t(`games.${game.id}.subtitle`)}</p>
-          </button>
+            <div className="absolute inset-0 rounded-xl border border-gold opacity-0 group-hover:opacity-30 transition-opacity pointer-events-none" />
+            <button
+              onClick={() => navigate(game.path)}
+              className="flex flex-col items-center transition-transform hover:scale-105"
+            >
+              <game.icon className="w-12 h-12 sm:w-14 sm:h-14 mx-auto mb-3 text-gold" />
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-1" style={{ fontFamily: "'Cinzel', serif" }}>
+                {t(`games.${game.id}.title`)}
+              </h2>
+              <p className="text-muted-foreground text-xs sm:text-sm">{t(`games.${game.id}.subtitle`)}</p>
+            </button>
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              <button
+                onClick={() => navigate(`/online/${game.id}`)}
+                className="text-xs flex items-center justify-center gap-1 py-2 rounded-md bg-gold/15 hover:bg-gold/25 border border-gold/40 text-gold transition-colors"
+              >
+                <Globe className="w-3 h-3" /> {t("home.online")}
+              </button>
+              <button
+                onClick={() => navigate(`/leaderboard/${game.id}`)}
+                className="text-xs flex items-center justify-center gap-1 py-2 rounded-md bg-secondary/60 hover:bg-secondary border border-gold/30 text-foreground transition-colors"
+              >
+                <Trophy className="w-3 h-3" /> {t("home.ranking")}
+              </button>
+            </div>
+          </div>
         ))}
       </div>
 
-      <p className="mt-8 sm:mt-12 text-muted-foreground text-xs opacity-50">
+      <button
+        onClick={() => navigate("/tournaments")}
+        className="mt-6 sm:mt-8 inline-flex items-center gap-2 px-5 py-3 rounded-full bg-gradient-to-r from-amber-700 to-amber-900 border border-gold text-foreground font-bold hover:scale-105 transition-transform animate-fade-in"
+        style={{ fontFamily: "'Cinzel', serif" }}
+      >
+        <Crown className="w-5 h-5 text-gold" />
+        {t("home.viewTournaments")}
+      </button>
+
+      <p className="mt-6 sm:mt-8 text-muted-foreground text-xs opacity-50">
         {t("app.footer")}
       </p>
 
