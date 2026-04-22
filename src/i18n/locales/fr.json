@@ -1,0 +1,58 @@
+{
+  "app": {
+    "title": "🎮 Game Hub",
+    "subtitle": "Jeux classiques au design élégant",
+    "footer": "Classic Games Collection v1.0"
+  },
+  "games": {
+    "xo": { "title": "XO", "subtitle": "Morpion" },
+    "chess": { "title": "Échecs", "subtitle": "Stratégie" },
+    "ludo": { "title": "Ludo", "subtitle": "Jeu de plateau" }
+  },
+  "common": {
+    "back": "Retour",
+    "restart": "Recommencer",
+    "settings": "Paramètres",
+    "newGame": "Nouvelle partie",
+    "vsHuman": "2 Joueurs",
+    "vsComputer": "vs Ordinateur",
+    "easy": "Facile",
+    "medium": "Moyen",
+    "hard": "Difficile",
+    "you": "Vous",
+    "computer": "Ordinateur",
+    "player": "Joueur",
+    "language": "Langue"
+  },
+  "settings": {
+    "sound": "Effets sonores",
+    "music": "Musique de fond",
+    "title": "Paramètres"
+  },
+  "xo": {
+    "gridSize": "Taille de grille",
+    "symbols": "Symboles",
+    "wins": "gagne!",
+    "draw": "Match nul!",
+    "turn": "Tour"
+  },
+  "chess": {
+    "checkmate": "Échec et mat!",
+    "stalemate": "Pat!",
+    "check": "Échec!",
+    "white": "Blanc",
+    "black": "Noir",
+    "theme": "Thème du plateau",
+    "wood": "Bois",
+    "marble": "Marbre",
+    "plain": "Simple"
+  },
+  "ludo": {
+    "rollDice": "Lancer le dé",
+    "winner": "Gagnant",
+    "red": "Rouge",
+    "blue": "Bleu",
+    "green": "Vert",
+    "yellow": "Jaune"
+  }
+}

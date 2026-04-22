@@ -1,0 +1,58 @@
+{
+  "app": {
+    "title": "🎮 Game Hub",
+    "subtitle": "Classic games with elegant design",
+    "footer": "Classic Games Collection v1.0"
+  },
+  "games": {
+    "xo": { "title": "XO", "subtitle": "Tic Tac Toe" },
+    "chess": { "title": "Chess", "subtitle": "Strategy" },
+    "ludo": { "title": "Ludo", "subtitle": "Board Game" }
+  },
+  "common": {
+    "back": "Back",
+    "restart": "Restart",
+    "settings": "Settings",
+    "newGame": "New Game",
+    "vsHuman": "2 Players",
+    "vsComputer": "vs Computer",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard",
+    "you": "You",
+    "computer": "Computer",
+    "player": "Player",
+    "language": "Language"
+  },
+  "settings": {
+    "sound": "Sound effects",
+    "music": "Background music",
+    "title": "Settings"
+  },
+  "xo": {
+    "gridSize": "Grid size",
+    "symbols": "Symbols",
+    "wins": "wins!",
+    "draw": "Draw!",
+    "turn": "Turn"
+  },
+  "chess": {
+    "checkmate": "Checkmate!",
+    "stalemate": "Stalemate!",
+    "check": "Check!",
+    "white": "White",
+    "black": "Black",
+    "theme": "Board theme",
+    "wood": "Wood",
+    "marble": "Marble",
+    "plain": "Plain"
+  },
+  "ludo": {
+    "rollDice": "Roll Dice",
+    "winner": "Winner",
+    "red": "Red",
+    "blue": "Blue",
+    "green": "Green",
+    "yellow": "Yellow"
+  }
+}
