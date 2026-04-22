@@ -4,11 +4,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import SettingsDialog from "@/components/SettingsDialog";
 
-const games = [
+const gameDefs = [
   {
     id: "xo",
-    title: "XO",
-    subtitle: "تيك تاك تو",
     icon: Grid3X3,
     path: "/xo",
     color: "from-red-900/60 to-orange-900/60",
@@ -16,8 +14,6 @@ const games = [
   },
   {
     id: "chess",
-    title: "شطرنج",
-    subtitle: "Chess",
     icon: Crown,
     path: "/chess",
     color: "from-emerald-900/60 to-teal-900/60",
@@ -25,14 +21,12 @@ const games = [
   },
   {
     id: "ludo",
-    title: "لودو",
-    subtitle: "Ludo",
     icon: Dice5,
     path: "/ludo",
     color: "from-blue-900/60 to-indigo-900/60",
     border: "border-blue-700/40",
   },
-];
+] as const;
 
 const Index = () => {
   const navigate = useNavigate();
