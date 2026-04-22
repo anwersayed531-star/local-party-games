@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Trophy, Medal, Award } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
+import { db as supabase } from "@/lib/db";
 import { useGuest } from "@/hooks/useGuest";
 
 type GameType = "chess" | "xo" | "ludo";

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import GuestPrompt from "@/components/GuestPrompt";
 import { useGuest } from "@/hooks/useGuest";
-import { supabase } from "@/integrations/supabase/client";
+import { db as supabase } from "@/lib/db";
 import { toast } from "sonner";
 
 type GameType = "chess" | "xo" | "ludo";

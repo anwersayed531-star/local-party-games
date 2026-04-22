@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { ArrowLeft, Crown, Users, Calendar } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { db as supabase } from "@/lib/db";
 import { useGuest } from "@/hooks/useGuest";
 import GuestPrompt from "@/components/GuestPrompt";
 import { toast } from "sonner";

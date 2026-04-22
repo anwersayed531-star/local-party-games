@@ -5,7 +5,7 @@ import { ArrowLeft, Copy, Loader2, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Chess } from "chess.js";
-import { supabase } from "@/integrations/supabase/client";
+import { db as supabase } from "@/lib/db";
 import { useGuest } from "@/hooks/useGuest";
 import { toast } from "sonner";
 
