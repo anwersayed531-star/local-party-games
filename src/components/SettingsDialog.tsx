@@ -3,6 +3,8 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Volume2, Music } from "lucide-react";
 import { useGameSettings } from "@/hooks/useGameSettings";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface SettingsDialogProps {
   open: boolean;
