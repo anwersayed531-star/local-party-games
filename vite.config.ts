@@ -5,6 +5,9 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // Relative base so the build works when hosted in a subfolder
+  // (required by Poki / CrazyGames / itch.io style portals).
+  base: "./",
   server: {
     host: "::",
     port: 8080,
@@ -17,5 +20,11 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  build: {
+    outDir: "dist",
+    sourcemap: false,
+    minify: "esbuild",
+    target: "es2018",
   },
 }));
