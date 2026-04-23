@@ -11,6 +11,7 @@ import OnlineLobby from "./pages/OnlineLobby";
 import OnlineMatch from "./pages/OnlineMatch";
 import Leaderboard from "./pages/Leaderboard";
 import Tournaments from "./pages/Tournaments";
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/xo" element={<XOGame />} />
           <Route path="/chess" element={<ChessGame />} />
           <Route path="/ludo" element={<LudoGame />} />

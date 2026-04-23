@@ -8,6 +8,7 @@ import { db as supabase } from "@/lib/db";
 import { useGuest } from "@/hooks/useGuest";
 import GuestPrompt from "@/components/GuestPrompt";
 import { toast } from "sonner";
+import { extractFlag } from "@/lib/countries";
 
 type GameType = "chess" | "xo" | "ludo";
 

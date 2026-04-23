@@ -23,7 +23,7 @@
     "theme": "ثيم اللوحة", "wood": "خشبي", "marble": "رخامي", "plain": "بسيط"
   },
   "ludo": { "rollDice": "ارمِ النرد", "winner": "الفائز", "red": "أحمر", "blue": "أزرق", "green": "أخضر", "yellow": "أصفر" },
-  "home": { "online": "أونلاين", "ranking": "الترتيب", "viewTournaments": "البطولات" },
+  "home": { "online": "أونلاين", "ranking": "الترتيب", "viewTournaments": "البطولات", "login": "دخول", "logout": "خروج" },
   "online": {
     "title": "اللعب أونلاين", "subtitle": "العب مع لاعبين حقيقيين من حول العالم",
     "matchmaking": "بحث تلقائي", "matchmakingDesc": "ابحث عن خصم متاح الآن", "findOpponent": "ابحث عن خصم",
@@ -42,6 +42,40 @@
     "you": "أنت", "youWon": "🎉 لقد فزت!", "youLost": "خسرت! حظ أوفر المرة القادمة",
     "draw": "تعادل", "matchEnded": "انتهت المباراة",
     "notYourTurn": "ليس دورك بعد", "opponentTurn": "دور الخصم...",
+    "searchingOpponent": "جاري البحث عن خصم...",
     "ludoOnlineSoon": "لودو أونلاين قريباً — العب الشطرنج وXO الآن"
+  },
+  "auth": {
+    "title": "حسابك",
+    "subtitle": "احفظ تقدمك ودولتك بدون تحقق إيميل",
+    "login": "دخول",
+    "signup": "حساب جديد",
+    "identifier": "الاسم أو الإيميل",
+    "identifierPlaceholder": "اكتب اسماً أو إيميلاً",
+    "password": "كلمة السر",
+    "nickname": "اسمك في اللعبة",
+    "nicknamePlaceholder": "كيف يراك الآخرون؟",
+    "country": "دولتك",
+    "selectCountry": "اختر دولتك",
+    "forgot": "نسيت كلمة السر؟",
+    "forgotHint": "لا توجد استعادة — أنشئ حساباً جديداً باسم مختلف",
+    "continueAsGuest": "ادخل كضيف",
+    "welcome": "أهلاً يا {{name}}",
+    "accountCreated": "تم إنشاء حسابك 🎉",
+    "errors": {
+      "shortIdentifier": "الاسم قصير جداً",
+      "shortPassword": "كلمة السر قصيرة (4 أحرف على الأقل)",
+      "shortNickname": "اسم اللعبة قصير",
+      "noCountry": "اختر دولتك",
+      "exists": "هذا الاسم مستخدم بالفعل",
+      "notFound": "لا يوجد حساب بهذا الاسم",
+      "badPassword": "كلمة سر خاطئة",
+      "server": "خطأ في الخادم"
+    }
+  },
+  "chat": {
+    "title": "دردشة المباراة",
+    "placeholder": "اكتب رسالة...",
+    "empty": "لا توجد رسائل بعد"
   }
 }

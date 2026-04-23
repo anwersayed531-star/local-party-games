@@ -6,7 +6,7 @@
   "xo": { "gridSize": "Rastergröße", "symbols": "Symbole", "wins": "gewinnt!", "draw": "Unentschieden!", "turn": "Zug" },
   "chess": { "checkmate": "Schachmatt!", "stalemate": "Patt!", "check": "Schach!", "white": "Weiß", "black": "Schwarz", "theme": "Brett-Thema", "wood": "Holz", "marble": "Marmor", "plain": "Einfach" },
   "ludo": { "rollDice": "Würfeln", "winner": "Gewinner", "red": "Rot", "blue": "Blau", "green": "Grün", "yellow": "Gelb" },
-  "home": { "online": "Online", "ranking": "Rangliste", "viewTournaments": "Turniere" },
+  "home": { "online": "Online", "ranking": "Rangliste", "viewTournaments": "Turniere", "login": "Anmelden", "logout": "Abmelden" },
   "online": {
     "title": "Online spielen", "subtitle": "Spiele mit echten Gegnern aus aller Welt",
     "matchmaking": "Schnelles Spiel", "matchmakingDesc": "Finde sofort einen Gegner", "findOpponent": "Gegner suchen",
@@ -25,6 +25,40 @@
     "you": "du", "youWon": "🎉 Du hast gewonnen!", "youLost": "Verloren! Nächstes Mal klappt's",
     "draw": "Unentschieden", "matchEnded": "Spiel beendet",
     "notYourTurn": "Du bist noch nicht dran", "opponentTurn": "Gegner ist dran...",
+    "searchingOpponent": "Suche einen Gegner...",
     "ludoOnlineSoon": "Ludo online bald — spiele jetzt Schach oder XO"
+  },
+  "auth": {
+    "title": "Dein Konto",
+    "subtitle": "Speichere deinen Fortschritt — ohne E-Mail-Verifizierung",
+    "login": "Anmelden",
+    "signup": "Konto erstellen",
+    "identifier": "Name oder E-Mail",
+    "identifierPlaceholder": "Name oder E-Mail eingeben",
+    "password": "Passwort",
+    "nickname": "Spielname",
+    "nicknamePlaceholder": "So sehen dich andere",
+    "country": "Land",
+    "selectCountry": "Wähle dein Land",
+    "forgot": "Passwort vergessen?",
+    "forgotHint": "Keine Wiederherstellung — erstelle ein neues Konto",
+    "continueAsGuest": "Als Gast fortfahren",
+    "welcome": "Willkommen, {{name}}",
+    "accountCreated": "Konto erstellt 🎉",
+    "errors": {
+      "shortIdentifier": "Kennung zu kurz",
+      "shortPassword": "Passwort zu kurz (min. 4)",
+      "shortNickname": "Spielname zu kurz",
+      "noCountry": "Wähle dein Land",
+      "exists": "Kennung bereits vergeben",
+      "notFound": "Kein Konto mit dieser Kennung",
+      "badPassword": "Falsches Passwort",
+      "server": "Serverfehler"
+    }
+  },
+  "chat": {
+    "title": "Match-Chat",
+    "placeholder": "Nachricht eingeben...",
+    "empty": "Noch keine Nachrichten"
   }
 }

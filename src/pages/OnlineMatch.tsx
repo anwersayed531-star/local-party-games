@@ -8,6 +8,9 @@ import { Chess } from "chess.js";
 import { db as supabase } from "@/lib/db";
 import { useGuest } from "@/hooks/useGuest";
 import { toast } from "sonner";
+import MatchChat, { type ChatMessage } from "@/components/MatchChat";
+import { findBestMove } from "@/lib/chessAI";
+import { extractFlag, stripFlag } from "@/lib/countries";
 
 type GameType = "chess" | "xo" | "ludo";
 
@@ -23,6 +26,7 @@ interface MatchRow {
   current_turn: number;
   state: any;
   winner: number | null;
+  mode: string;
 }
 
 const PIECE_UNICODE: Record<string, string> = {
@@ -40,11 +44,16 @@ export default function OnlineMatch() {
   const [selected, setSelected] = useState<string | null>(null);
   const chessRef = useRef<Chess>(new Chess());
   const lastAppliedFen = useRef<string>("");
+  const aiMoveScheduled = useRef<string>(""); // dedupe AI moves per fen
 
   // Determine my role
   const myRole: 1 | 2 | 0 = match
     ? guest?.id === match.player1_id ? 1 : guest?.id === match.player2_id ? 2 : 0
     : 0;
+
+  const aiInfo: { role: number; name: string; lang: string; country?: string } | null =
+    match?.state?.ai ?? null;
+  const opponentIsAi = !!aiInfo && myRole !== 0 && aiInfo.role !== myRole;
 
   // Initial fetch + subscription
   useEffect(() => {
@@ -73,7 +82,7 @@ export default function OnlineMatch() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "matches", filter: `id=eq.${matchId}` },
-        (payload) => {
+        (payload: any) => {
           if (payload.new) setMatch(payload.new as any);
         }
       )
@@ -105,7 +114,86 @@ export default function OnlineMatch() {
     if (match.status === "finished" && match.winner !== null && myRole === 1) {
       supabase.rpc("apply_match_result", { _match_id: match.id }).then(() => {});
     }
+    // eslint-disable-next-line
   }, [match?.status, match?.winner]);
+
+  // ============ AI MOVE EXECUTOR ============
+  // When opponent is AI and it's their turn, the human player's client triggers the AI move.
+  useEffect(() => {
+    if (!match || !opponentIsAi || !aiInfo) return;
+    if (match.status !== "active") return;
+    if (match.current_turn !== aiInfo.role) return;
+
+    const dedupeKey = `${match.id}:${match.state?.fen ?? JSON.stringify(match.state?.board)}:${match.current_turn}`;
+    if (aiMoveScheduled.current === dedupeKey) return;
+    aiMoveScheduled.current = dedupeKey;
+
+    const delayMs = 1500 + Math.random() * 4500; // 1.5–6 s
+    const tid = window.setTimeout(async () => {
+      try {
+        if (match.game === "chess") {
+          const chess = new Chess(match.state?.fen && match.state.fen !== "start" ? match.state.fen : undefined);
+          const aiIsWhite = aiInfo.role === 1;
+          if ((chess.turn() === "w") !== aiIsWhite) return; // not its turn at engine level
+          const move = findBestMove(chess, "medium");
+          if (!move) return;
+          const made = chess.move(move);
+          if (!made) return;
+          const newFen = chess.fen();
+          const isOver = chess.isGameOver();
+          let winner: number | null = null;
+          if (chess.isCheckmate()) winner = aiInfo.role;
+          else if (chess.isDraw() || chess.isStalemate()) winner = 0;
+          const update: any = {
+            state: { ...match.state, fen: newFen, lastMove: { from: made.from, to: made.to } },
+            current_turn: aiInfo.role === 1 ? 2 : 1,
+          };
+          if (isOver) {
+            update.status = "finished";
+            update.winner = winner;
+            update.finished_at = new Date().toISOString();
+          }
+          await supabase.from("matches").update(update).eq("id", match.id);
+        } else if (match.game === "xo") {
+          const board: (string | null)[] = match.state?.board ?? Array(9).fill(null);
+          const empty: number[] = board.map((c, i) => (c ? -1 : i)).filter((i) => i >= 0);
+          if (empty.length === 0) return;
+          // Simple smart: try to win, then block, else random.
+          const symbol = aiInfo.role === 1 ? "X" : "O";
+          const opp = symbol === "X" ? "O" : "X";
+          const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+          const find = (s: string) => {
+            for (const ln of lines) {
+              const vals = ln.map((i) => board[i]);
+              const cnt = vals.filter((v) => v === s).length;
+              const emptyIdx = ln.find((i) => !board[i]);
+              if (cnt === 2 && emptyIdx !== undefined) return emptyIdx;
+            }
+            return -1;
+          };
+          let pick = find(symbol);
+          if (pick < 0) pick = find(opp);
+          if (pick < 0) pick = empty[Math.floor(Math.random() * empty.length)];
+          const newBoard = [...board];
+          newBoard[pick] = symbol;
+          const winner = checkXoWinner(newBoard);
+          const update: any = {
+            state: { ...match.state, board: newBoard, size: 3 },
+            current_turn: aiInfo.role === 1 ? 2 : 1,
+          };
+          if (winner) {
+            update.status = "finished";
+            update.winner = winner === "draw" ? 0 : (winner === "X" ? 1 : 2);
+            update.finished_at = new Date().toISOString();
+          }
+          await supabase.from("matches").update(update).eq("id", match.id);
+        }
+      } catch (e) {
+        console.error("AI move failed", e);
+      }
+    }, delayMs);
+    return () => window.clearTimeout(tid);
+  }, [match, opponentIsAi, aiInfo]);
 
   const copyCode = () => {
     if (!match?.room_code) return;
@@ -134,7 +222,7 @@ export default function OnlineMatch() {
         if (chess.isCheckmate()) winner = myRole;
         else if (chess.isDraw() || chess.isStalemate()) winner = 0;
         const update: any = {
-          state: { fen: newFen, lastMove: { from: selected, to: sq } },
+          state: { ...match.state, fen: newFen, lastMove: { from: selected, to: sq } },
           current_turn: myRole === 1 ? 2 : 1,
         };
         if (isOver) {
@@ -171,7 +259,7 @@ export default function OnlineMatch() {
     newBoard[idx] = symbol;
     const winner = checkXoWinner(newBoard);
     const update: any = {
-      state: { board: newBoard, size: 3 },
+      state: { ...match.state, board: newBoard, size: 3 },
       current_turn: myRole === 1 ? 2 : 1,
     };
     if (winner) {
@@ -180,6 +268,17 @@ export default function OnlineMatch() {
       update.finished_at = new Date().toISOString();
     }
     await supabase.from("matches").update(update).eq("id", match.id);
+  };
+
+  // ============ CHAT ============
+  const sendChat = async (text: string) => {
+    if (!match || myRole === 0) return;
+    const chat: ChatMessage[] = match.state?.chat ?? [];
+    const next = [...chat, { from: myRole as 1 | 2, text, ts: Date.now() }];
+    await supabase
+      .from("matches")
+      .update({ state: { ...match.state, chat: next } })
+      .eq("id", match.id);
   };
 
   if (loading || !match) {
@@ -195,6 +294,11 @@ export default function OnlineMatch() {
   const isFinished = match.status === "finished";
   const myTurn = match.current_turn === myRole && match.status === "active";
 
+  const flag1 = extractFlag(match.player1_nickname);
+  const flag2 = extractFlag(match.player2_nickname);
+  const name1 = stripFlag(match.player1_nickname) || "—";
+  const name2 = stripFlag(match.player2_nickname) || t("online.waitingOpponent");
+
   return (
     <div className="min-h-screen wood-texture p-4 sm:p-6">
       <div className="max-w-2xl mx-auto">
@@ -205,13 +309,17 @@ export default function OnlineMatch() {
 
         {/* Players */}
         <Card className="p-4 mb-4 bg-card border-gold/40">
-          <div className="flex justify-between items-center text-sm">
-            <div className={`${match.current_turn === 1 && match.status === "active" ? "text-gold font-bold" : ""}`}>
-              ♙ {match.player1_nickname ?? "—"} {myRole === 1 && `(${t("online.you")})`}
+          <div className="flex justify-between items-center text-sm gap-2">
+            <div className={`flex items-center gap-1 min-w-0 truncate ${match.current_turn === 1 && match.status === "active" ? "text-gold font-bold" : ""}`}>
+              <span className="text-base">{flag1 ?? "♙"}</span>
+              <span className="truncate">{name1}</span>
+              {myRole === 1 && <span className="text-xs text-muted-foreground">({t("online.you")})</span>}
             </div>
-            <div className="text-muted-foreground">vs</div>
-            <div className={`${match.current_turn === 2 && match.status === "active" ? "text-gold font-bold" : ""}`}>
-              ♟ {match.player2_nickname ?? t("online.waitingOpponent")} {myRole === 2 && `(${t("online.you")})`}
+            <div className="text-muted-foreground text-xs">vs</div>
+            <div className={`flex items-center gap-1 min-w-0 truncate justify-end ${match.current_turn === 2 && match.status === "active" ? "text-gold font-bold" : ""}`}>
+              {myRole === 2 && <span className="text-xs text-muted-foreground">({t("online.you")})</span>}
+              <span className="truncate">{name2}</span>
+              <span className="text-base">{flag2 ?? "♟"}</span>
             </div>
           </div>
         </Card>
@@ -220,7 +328,9 @@ export default function OnlineMatch() {
         {isWaiting && (
           <Card className="p-6 mb-4 text-center bg-card border-gold/40">
             <Loader2 className="w-8 h-8 mx-auto text-gold animate-spin mb-3" />
-            <p className="text-foreground mb-3">{t("online.waitingOpponent")}</p>
+            <p className="text-foreground mb-3">
+              {match.mode === "matchmaking" ? t("online.searchingOpponent") : t("online.waitingOpponent")}
+            </p>
             {match.room_code && (
               <div>
                 <p className="text-xs text-muted-foreground mb-2">{t("online.shareCode")}</p>
@@ -274,6 +384,22 @@ export default function OnlineMatch() {
 
         {!myTurn && match.status === "active" && (
           <p className="text-center text-sm text-muted-foreground mt-3">{t("online.opponentTurn")}</p>
+        )}
+
+        {/* Chat — only when active or finished, and only if I'm a player */}
+        {!isWaiting && myRole !== 0 && match.game !== "ludo" && (
+          <div className="mt-4">
+            <MatchChat
+              matchId={match.id}
+              myRole={myRole}
+              messages={(match.state?.chat ?? []) as ChatMessage[]}
+              onSend={sendChat}
+              opponentIsAi={opponentIsAi}
+              aiName={aiInfo?.name}
+              aiLang={aiInfo?.lang}
+              myNickname={stripFlag(myRole === 1 ? match.player1_nickname : match.player2_nickname)}
+            />
+          </div>
         )}
       </div>
     </div>

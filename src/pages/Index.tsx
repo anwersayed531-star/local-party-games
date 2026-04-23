@@ -1,8 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { Settings, Dice5, Grid3X3, Crown, Globe, Trophy } from "lucide-react";
+import { Settings, Dice5, Grid3X3, Crown, Globe, Trophy, LogIn, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import SettingsDialog from "@/components/SettingsDialog";
+import { useAuth } from "@/hooks/useAuth";
+import { getCountry } from "@/lib/countries";
 
 const gameDefs = [
   {
@@ -32,19 +34,42 @@ const Index = () => {
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { t } = useTranslation();
+  const { session, logout } = useAuth();
+  const flag = getCountry(session?.country)?.flag ?? "";
 
   return (
     <div className="min-h-screen wood-texture flex flex-col items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-2 sm:inset-4 border-2 border-gold rounded-2xl pointer-events-none opacity-30" />
       <div className="absolute inset-3 sm:inset-6 border border-gold rounded-xl pointer-events-none opacity-15" />
 
-      <button
-        onClick={() => setSettingsOpen(true)}
-        className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 p-3 rounded-full bg-secondary/80 hover:bg-secondary transition-colors border border-gold"
-        aria-label={t("common.settings")}
-      >
-        <Settings className="w-5 h-5 text-gold" />
-      </button>
+      <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-10 flex items-center gap-2">
+        {session ? (
+          <button
+            onClick={logout}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-secondary/80 hover:bg-secondary border border-gold/60 text-xs text-gold"
+            title={t("home.logout")}
+          >
+            <span>{flag}</span>
+            <span className="max-w-[6rem] truncate">{session.nickname}</span>
+            <LogOut className="w-3 h-3 opacity-60" />
+          </button>
+        ) : (
+          <button
+            onClick={() => navigate("/auth")}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-secondary/80 hover:bg-secondary border border-gold/60 text-xs text-gold"
+          >
+            <LogIn className="w-3 h-3" />
+            <span>{t("home.login")}</span>
+          </button>
+        )}
+        <button
+          onClick={() => setSettingsOpen(true)}
+          className="p-3 rounded-full bg-secondary/80 hover:bg-secondary transition-colors border border-gold"
+          aria-label={t("common.settings")}
+        >
+          <Settings className="w-5 h-5 text-gold" />
+        </button>
+      </div>
 
       <div className="text-center mb-6 sm:mb-10 animate-fade-in">
         <h1 className="text-3xl sm:text-5xl font-bold text-gold mb-2 tracking-wider" style={{ fontFamily: "'Cinzel', serif" }}>
