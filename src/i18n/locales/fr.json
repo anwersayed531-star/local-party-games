@@ -6,7 +6,7 @@
   "xo": { "gridSize": "Taille de grille", "symbols": "Symboles", "wins": "gagne!", "draw": "Match nul!", "turn": "Tour" },
   "chess": { "checkmate": "Échec et mat!", "stalemate": "Pat!", "check": "Échec!", "white": "Blanc", "black": "Noir", "theme": "Thème du plateau", "wood": "Bois", "marble": "Marbre", "plain": "Simple" },
   "ludo": { "rollDice": "Lancer le dé", "winner": "Gagnant", "red": "Rouge", "blue": "Bleu", "green": "Vert", "yellow": "Jaune" },
-  "home": { "online": "En ligne", "ranking": "Classement", "viewTournaments": "Tournois" },
+  "home": { "online": "En ligne", "ranking": "Classement", "viewTournaments": "Tournois", "login": "Connexion", "logout": "Déconnexion" },
   "online": {
     "title": "Jouer en ligne", "subtitle": "Jouez avec de vrais joueurs du monde entier",
     "matchmaking": "Partie rapide", "matchmakingDesc": "Trouver un adversaire maintenant", "findOpponent": "Trouver un adversaire",
@@ -25,6 +25,40 @@
     "you": "vous", "youWon": "🎉 Victoire!", "youLost": "Défaite! La prochaine fois",
     "draw": "Match nul", "matchEnded": "Partie terminée",
     "notYourTurn": "Ce n'est pas votre tour", "opponentTurn": "Tour de l'adversaire...",
+    "searchingOpponent": "Recherche d'un adversaire...",
     "ludoOnlineSoon": "Ludo en ligne bientôt — essayez Échecs ou XO"
+  },
+  "auth": {
+    "title": "Votre compte",
+    "subtitle": "Sauvegardez vos progrès — sans vérification e-mail",
+    "login": "Se connecter",
+    "signup": "Créer un compte",
+    "identifier": "Nom ou e-mail",
+    "identifierPlaceholder": "Saisissez un nom ou e-mail",
+    "password": "Mot de passe",
+    "nickname": "Pseudo en jeu",
+    "nicknamePlaceholder": "Visible par les autres",
+    "country": "Pays",
+    "selectCountry": "Choisissez votre pays",
+    "forgot": "Mot de passe oublié ?",
+    "forgotHint": "Pas de récupération — créez un nouveau compte",
+    "continueAsGuest": "Continuer en tant qu'invité",
+    "welcome": "Bienvenue, {{name}}",
+    "accountCreated": "Compte créé 🎉",
+    "errors": {
+      "shortIdentifier": "Identifiant trop court",
+      "shortPassword": "Mot de passe trop court (4 min)",
+      "shortNickname": "Pseudo trop court",
+      "noCountry": "Choisissez votre pays",
+      "exists": "Identifiant déjà utilisé",
+      "notFound": "Aucun compte avec cet identifiant",
+      "badPassword": "Mot de passe incorrect",
+      "server": "Erreur serveur"
+    }
+  },
+  "chat": {
+    "title": "Chat de la partie",
+    "placeholder": "Écrivez un message...",
+    "empty": "Pas encore de messages"
   }
 }

@@ -6,7 +6,7 @@
   "xo": { "gridSize": "Grid size", "symbols": "Symbols", "wins": "wins!", "draw": "Draw!", "turn": "Turn" },
   "chess": { "checkmate": "Checkmate!", "stalemate": "Stalemate!", "check": "Check!", "white": "White", "black": "Black", "theme": "Board theme", "wood": "Wood", "marble": "Marble", "plain": "Plain" },
   "ludo": { "rollDice": "Roll Dice", "winner": "Winner", "red": "Red", "blue": "Blue", "green": "Green", "yellow": "Yellow" },
-  "home": { "online": "Online", "ranking": "Ranking", "viewTournaments": "Tournaments" },
+  "home": { "online": "Online", "ranking": "Ranking", "viewTournaments": "Tournaments", "login": "Sign in", "logout": "Sign out" },
   "online": {
     "title": "Play Online", "subtitle": "Play with real players from around the world",
     "matchmaking": "Quick Match", "matchmakingDesc": "Find an opponent right now", "findOpponent": "Find Opponent",
@@ -25,6 +25,40 @@
     "you": "you", "youWon": "🎉 You won!", "youLost": "You lost! Better luck next time",
     "draw": "Draw", "matchEnded": "Match ended",
     "notYourTurn": "Not your turn yet", "opponentTurn": "Opponent's turn...",
+    "searchingOpponent": "Searching for an opponent...",
     "ludoOnlineSoon": "Online Ludo coming soon — try Chess or XO online now"
+  },
+  "auth": {
+    "title": "Your Account",
+    "subtitle": "Save your progress and country — no email verification",
+    "login": "Sign in",
+    "signup": "Create account",
+    "identifier": "Name or Email",
+    "identifierPlaceholder": "Type a name or email",
+    "password": "Password",
+    "nickname": "In-game nickname",
+    "nicknamePlaceholder": "How others see you",
+    "country": "Country",
+    "selectCountry": "Select your country",
+    "forgot": "Forgot password?",
+    "forgotHint": "No recovery — just create a new account with a different name",
+    "continueAsGuest": "Continue as guest",
+    "welcome": "Welcome, {{name}}",
+    "accountCreated": "Account created 🎉",
+    "errors": {
+      "shortIdentifier": "Identifier too short",
+      "shortPassword": "Password too short (min 4 chars)",
+      "shortNickname": "Nickname too short",
+      "noCountry": "Choose your country",
+      "exists": "This identifier is already used",
+      "notFound": "No account with this identifier",
+      "badPassword": "Wrong password",
+      "server": "Server error"
+    }
+  },
+  "chat": {
+    "title": "Match chat",
+    "placeholder": "Type a message...",
+    "empty": "No messages yet"
   }
 }
