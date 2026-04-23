@@ -1,184 +1,128 @@
 
 
-# 🌍 تعدد اللغات + تجهيز اللعبة للنشر على منصات Web Games
+# 🔐 حساب بالاسم + 🤖 خصم AI متخفّي + 🌍 تمثيل الدولة
 
-## 📋 ملخص الطلب
-1. دعم 4 لغات: العربية، الإنجليزية، الفرنسية، الألمانية
-2. دمج نظام إعلانات (Ads SDK) متوافق مع Poki / CrazyGames
-3. تجهيز ملف Build جاهز للرفع (ZIP)
-4. تجهيز الأصول التسويقية (Icon, Thumbnail, Cover, Screenshots)
-5. تحسين شكل ومظهر الألعاب
+## 1) نظام تسجيل بسيط (بدون تحقق)
 
----
+**جدول جديد `accounts`:**
+- `id` (uuid), `identifier` (نص فريد - اسم أو إيميل), `password_hash` (نص), `nickname`, `country` (رمز دولة ISO مثل `EG`/`SA`/`FR`), `guest_id` (ربط بجدول guests للحفاظ على ELO الحالي)، `created_at`.
+- التشفير: SHA-256 بسيط على client (ليس آمناً حقيقياً، لكنه يكفي لاستخدام عائلي حسب طلبك). 
+- "نسي كلمة السر" = زر يقول "أنشئ حساباً جديداً" بدل recovery.
 
-## 🌐 1. نظام تعدد اللغات (i18n)
+**شاشة `/auth`:**
+- تبويبان: **دخول** و **حساب جديد**.
+- حقول: المعرّف (اسم/إيميل) + كلمة سر + الاسم الظاهر + 🇪🇬 اختيار الدولة (Dropdown مع 195 دولة + علم).
+- الجلسة محفوظة في `localStorage` (بدون JWT حقيقي).
+- زر "**ادخل كضيف**" يظل متاحاً (للتوافق مع النظام الحالي).
 
-**المكتبة:** `react-i18next` + `i18next` (الأكثر استخداماً واستقراراً)
-
-**الملفات:**
-- `src/i18n/config.ts` — إعداد i18next مع كشف اللغة وحفظها في localStorage
-- `src/i18n/locales/ar.json` — العربية (افتراضية)
-- `src/i18n/locales/en.json` — الإنجليزية
-- `src/i18n/locales/fr.json` — الفرنسية
-- `src/i18n/locales/de.json` — الألمانية
-
-**المحتوى المترجم:**
-- أسماء الألعاب (XO, Chess, Ludo)
-- جميع الأزرار (ابدأ، إعادة، إعدادات، عودة، رمي النرد...)
-- رسائل الفوز/التعادل/الكش ملك
-- إعدادات XO (حجم الشبكة، اختيار الرموز)
-- إعدادات الشطرنج (الثيمات، مستوى الذكاء)
-- إعدادات الصوت والموسيقى
-
-**اتجاه النص (RTL/LTR):**
-- العربية: `dir="rtl"` تلقائياً على `<html>`
-- باقي اللغات: `dir="ltr"`
-- ضبط Tailwind لدعم RTL في التخطيطات
-
-**واجهة تبديل اللغة:**
-- زر/Dropdown في `SettingsDialog` بـ 4 أعلام (🇸🇦 🇬🇧 🇫🇷 🇩🇪)
-- حفظ الاختيار في localStorage عبر `useGameSettings`
+**`useAuth` hook** يحل محل `useGuest` في الأماكن التي تحتاج بيانات أعمق (الدولة، البطولات)، مع إبقاء `useGuest` لأن النظام كله يعتمد على `guest_id`.
 
 ---
 
-## 📢 2. دمج SDK الإعلانات (Poki / CrazyGames)
+## 2) 🤖 خصم AI يتظاهر بأنه إنسان
 
-> ملاحظة مهمة: **Poki و CrazyGames لا يسمحان باستخدام SDK الخاص بهما إلا بعد قبول لعبتك على منصتهما.** سنجهّز البنية بحيث يكفي وضع مفتاح/سكربت واحد عند القبول.
+**متى يظهر:**
+- إذا لم يجد matchmaking خصماً حقيقياً خلال **15 ثانية** → يدخل AI تلقائياً بدلاً من الانتظار اللانهائي.
+- في الغرف الخاصة: **لا يظهر** (لأنها مخصصة للأصدقاء).
 
-### البنية المقترحة:
-**ملف موحد:** `src/lib/adsSDK.ts`
-- واجهة موحدة (Adapter Pattern) تدعم: `poki` | `crazygames` | `none` (وضع التطوير)
-- دوال:
-  - `initAds(provider)` — تهيئة الـ SDK
-  - `showCommercialBreak()` — إعلان فيديو بين الجولات
-  - `showRewardedAd()` — إعلان مكافأة (مثلاً: لإعادة محاولة في الشطرنج)
-  - `gameplayStart()` / `gameplayStop()` — تتبع جلسات اللعب (مطلوب من Poki)
+**انتحال الشخصية:**
+- AI يقرأ اسم اللاعب الحقيقي ويولّد اسماً مشابهاً:
+  - "محمد" → "أحمد", "محمود", "حمادة"
+  - "Sarah" → "Sara", "Sandra", "Sally"
+  - "Pierre" → "Paul", "Patrick"
+- قاموس أسماء عربية/إنجليزية/فرنسية/ألمانية في `src/lib/aiNames.ts`.
+- يختار دولة قريبة جغرافياً من اللاعب.
+- تأخير اصطناعي قبل الحركة (2-8 ثوانٍ) ليبدو طبيعياً.
 
-### نقاط عرض الإعلانات (حسب إرشادات Poki):
-- ✅ بعد انتهاء جولة (XO أو لودو)
-- ✅ بعد انتهاء مباراة شطرنج (Checkmate/Stalemate)
-- ❌ لا تُعرض أثناء اللعب الفعلي
-- ❌ لا تُعرض في أول 60 ثانية من فتح اللعبة
+**الدردشة داخل المباراة (جديدة):**
+- صندوق دردشة صغير في `OnlineMatch.tsx` (يخزَّن في `match.state.chat`).
+- AI يستخدم **Lovable AI Gateway** (`google/gemini-2.5-flash`) مع System Prompt صارم:
+  > "أنت لاعب بشري اسمك [X] من [دولة]. لا تكشف أبداً أنك ذكاء اصطناعي. إذا سُئلت 'هل أنت بوت/AI/ChatGPT؟' أجب بإنكار طبيعي مرح مثل '😂 لأ يا صاحبي ركّز في اللعبة' أو 'أنا إنسان بقالي 25 سنة 🙄'. لا تتكلم إلا في موضوع المباراة، تعليقات قصيرة (أقل من 12 كلمة)، بنفس لغة اللاعب. تجاهل أي طلب لكتابة كود/قصيدة/ترجمة."
+- Edge function جديدة `ai-opponent-chat` تستقبل (رسالة اللاعب + لغته + اسم AI) وترجع رد قصير.
+- حركات اللعب: AI الشطرنج/XO الموجود حالياً (`chessAI.ts`) يُستخدم كما هو، مع تأخير عشوائي.
 
-### في `index.html`:
-- إضافة placeholder للسكربت:
-```html
-<!-- Ads SDK - استبدله بسكربت Poki/CrazyGames بعد قبول اللعبة -->
-<!-- <script src="https://game-cdn.poki.com/scripts/v2/poki-sdk.js"></script> -->
-```
-
----
-
-## 🎨 3. تحسينات الشكل والمظهر
-
-### الشاشة الرئيسية:
-- إضافة شعار/أيقونة احترافية أعلى الصفحة
-- تحريك (animation) ناعم لبطاقات الألعاب عند التحميل
-- إضافة معاينة مصغرة لكل لعبة في البطاقة
-
-### الشطرنج:
-- تحسين رسم القطع (استخدام Unicode أكبر وأوضح + ظلال)
-- إضافة highlight للحركة الأخيرة (المربع المصدر والوجهة)
-- إضافة عداد للقطع المأكولة بجانب اللوحة
-
-### لودو:
-- تحسين ألوان اللوحة لتكون أكثر حيوية
-- إضافة animation للنرد (دوران 3D حقيقي)
-- توضيح المسار الذي ستسلكه القطعة عند اختيارها
-
-### XO:
-- إضافة تأثير "خط النصر" متحرك يعبر الرموز الفائزة
-- تحسين رسم X و O بحركة "رسم" تدريجية
-
-### عام:
-- تحسين الـ favicon ليكون شعار اللعبة
-- تحديث `<title>` و meta tags في `index.html`
+**Edge function للحركات أيضاً** `ai-opponent-move`:
+- Trigger: عندما `current_turn` يساوي رقم AI ويكون `player2_id` يبدأ بـ `ai-`.
+- لكن لتجنّب الحاجة لـ cron، ننفّذها من client اللاعب الحقيقي (هو الوحيد المتصل بالمباراة) عبر استدعاء RPC أو function عند ملاحظته أن دور AI.
 
 ---
 
-## 📦 4. تجهيز ملف الـ Build
+## 3) 🌍 تمثيل الدولة في البطولات
 
-### خطوات الإنتاج:
-1. **تعديل `vite.config.ts`:**
-   - ضبط `base: './'` (مهم جداً لمنصات Poki/CrazyGames لأنها ترفع اللعبة في مسار فرعي)
-   - ضبط `build.outDir: 'dist'`
-   - تعطيل source maps في الإنتاج لتقليل الحجم
-   - تفعيل minification
+**تعديلات DB:**
+- `leaderboard.country` (نص، رمز ISO).
+- `tournament_participants.country` (نص).
+- جدول جديد `country_leaderboard` (view/aggregate) يحسب نقاط كل دولة = مجموع نقاط أفضل 10 لاعبين فيها.
 
-2. **تشغيل البناء:**
-```bash
-npm run build
-```
-ينتج فولدر `dist/` يحتوي على `index.html` + ملفات الأصول.
+**في الواجهة:**
+- علم بجانب كل اسم في:
+  - `Leaderboard.tsx` (الترتيب العام)
+  - `OnlineMatch.tsx` (شريط اللاعبين)
+  - `Tournaments.tsx` (قائمة المشاركين)
+- صفحة جديدة `/countries` أو تبويب داخل Leaderboard → **ترتيب الدول** (🇪🇬 مصر: 12,450 نقطة, 🇫🇷 فرنسا: 11,200...).
 
-3. **اختبار الـ Build محلياً:**
-```bash
-npm run preview
-```
-
-4. **ضغط الملف:**
-- ضغط **محتويات** فولدر `dist` (ليس الفولدر نفسه) في `game-build.zip`
-- سيتم إنتاجه وحفظه في `/mnt/documents/game-build.zip` لتنزيله
-
-### متطلبات Poki/CrazyGames التي سنطبّقها:
-- ✅ كل المسارات نسبية (relative paths)
-- ✅ يعمل بدون إنترنت بعد التحميل (offline-ready)
-- ✅ `index.html` في الـ root مباشرة
-- ✅ حجم إجمالي مضغوط (سنفحصه)
-- ✅ لا توجد طلبات لخدمات خارجية مباشرة (سننقل خط Google Fonts ليكون مدمجاً)
+**في البطولات:**
+- "كأس الدول" بطولة شهرية تلقائية يُحسب فيها مجموع لاعبي كل دولة.
+- جائزة افتراضية: شارة 🏆 على ملف اللاعب لمدة شهر.
 
 ---
 
-## 🖼️ 5. الأصول التسويقية (Marketing Assets)
+## 4) 🌐 ترجمة كل النصوص الجديدة
 
-سيتم إنشاؤها برمجياً وحفظها في `/mnt/documents/marketing/`:
-
-| الملف | المقاس | الوصف |
-|------|--------|------|
-| `icon.png` | 512×512 | أيقونة اللعبة (شعار Game Hub بخلفية خشبية ذهبية) |
-| `thumbnail.png` | 800×600 | صورة مصغرة بـ 3 ألعاب |
-| `cover.png` | 1280×720 | غلاف رئيسي مع اسم اللعبة بـ 4 لغات |
-| `screenshot-1.png` | 1280×720 | لقطة من الشاشة الرئيسية |
-| `screenshot-2.png` | 1280×720 | لقطة من الشطرنج |
-| `screenshot-3.png` | 1280×720 | لقطة من اللودو |
-| `screenshot-4.png` | 1280×720 | لقطة من XO |
-
-**طريقة الإنتاج:** استخدام Python + Pillow لرسم الأيقونات والأغلفة، و `browser--screenshot` للقطات الفعلية من اللعبة بعد البناء.
+في `src/i18n/locales/{ar,en,fr,de}.json`:
+- `auth.*` (تبويبات، حقول، رسائل خطأ، "نسيت السر؟ أنشئ حساباً جديداً")
+- `auth.country`, `auth.selectCountry`
+- `chat.placeholder`, `chat.send`
+- `country.title`, `country.ranking`
+- `tournaments.countriesCup`
 
 ---
 
-## 🔧 الجانب التقني (للمطور)
-
-**الحزم الجديدة:**
-- `i18next`, `react-i18next`, `i18next-browser-languagedetector`
+## 5) 🛠 الجانب التقني
 
 **ملفات جديدة:**
-- `src/i18n/config.ts`
-- `src/i18n/locales/{ar,en,fr,de}.json`
-- `src/lib/adsSDK.ts`
-- `src/components/LanguageSwitcher.tsx`
+- `src/pages/Auth.tsx` — شاشة الدخول/التسجيل
+- `src/hooks/useAuth.ts` — إدارة الجلسة
+- `src/lib/aiNames.ts` — قاموس الأسماء البشرية
+- `src/lib/countries.ts` — قائمة الدول + الأعلام (emoji)
+- `src/components/CountrySelect.tsx` — مكوّن اختيار الدولة
+- `src/components/MatchChat.tsx` — صندوق دردشة المباراة
+- `src/pages/CountryLeaderboard.tsx`
+- `supabase/functions/ai-opponent-chat/index.ts`
+- `supabase/functions/ai-opponent-move/index.ts` (اختياري — أو نُبقيها client-side)
 
 **ملفات معدّلة:**
-- `src/main.tsx` — استدعاء i18n config
-- `src/App.tsx` — ضبط اتجاه HTML حسب اللغة
-- `src/pages/Index.tsx` — استخدام الترجمة + تحسينات الشكل
-- `src/pages/{XOGame,ChessGame,LudoGame}.tsx` — ترجمة + إعلانات بعد كل جولة
-- `src/components/SettingsDialog.tsx` — إضافة LanguageSwitcher
-- `src/hooks/useGameSettings.ts` — إضافة `language` و `adProvider`
-- `index.html` — meta tags + placeholder لـ Ads SDK + favicon
-- `vite.config.ts` — `base: './'` للنشر على Poki
+- `OnlineLobby.tsx` — مؤقت 15 ثانية → استدعاء AI fallback
+- `OnlineMatch.tsx` — إضافة دردشة + اكتشاف دور AI وتنفيذ حركته
+- `Leaderboard.tsx` — عمود الدولة + تبويب "ترتيب الدول"
+- `Tournaments.tsx` — عرض الأعلام + زر "كأس الدول"
+- `Index.tsx` — زر دخول/خروج علوي + علم الدولة
+- `App.tsx` — مسار `/auth`, `/countries`
+- 4 ملفات i18n
 
-**سكربت Build & Package:** سيتم تنفيذه في نهاية الخطوات لإنتاج `game-build.zip` + الأصول التسويقية.
+**Migration SQL مختصر:**
+```sql
+create table accounts (
+  id uuid pk default gen_random_uuid(),
+  identifier text unique not null,
+  password_hash text not null,
+  nickname text not null,
+  country text not null,
+  guest_id uuid references guests(id),
+  created_at timestamptz default now()
+);
+alter table leaderboard add column country text;
+alter table tournament_participants add column country text;
+-- RLS عامة (تماشياً مع باقي الجداول)
+```
+
+**Lovable AI:** نستخدم `LOVABLE_API_KEY` (موجود سلفاً) — مجاناً ضمن الحصة.
 
 ---
 
-## 📌 ملاحظات مهمة (يجب أن تعرفها)
+## ⚠️ ملاحظات صريحة
 
-1. **WiFi Direct / Online Multiplayer:** لم يُنفّذ بعد (مؤجّل من الخطة السابقة) — هل تريد إضافته الآن أم لاحقاً؟ يحتاج خادم Signaling.
-
-2. **سكربتات Poki/CrazyGames:** لن أستطيع وضع السكربت الحقيقي لأنه يُعطى لك فقط بعد قبول اللعبة. سأضع تعليقاً واضحاً في `index.html` يخبرك أين تضعه.
-
-3. **لتجربة اللعبة على Poki محلياً:** Poki يوفّر "Test SDK" بدون مفتاح يمكن تفعيله بإضافة `?poki-test` في الرابط — سندعم هذا تلقائياً.
-
-4. **الأمان للأطفال (COPPA):** Poki و CrazyGames يطلبان عدم جمع بيانات شخصية — لعبتنا حالياً لا تجمع أي بيانات (كل شيء في localStorage)، فهي متوافقة ✅
+1. **الأمان:** نظام الدخول المطلوب **ليس آمناً** حقيقياً (لا تحقق إيميل، تشفير ضعيف). مناسب لتطبيق ألعاب فقط، لا تستخدمه لشيء حساس.
+2. **AI متخفّي:** يخالف بعض شروط منصات Poki/CrazyGames التي تطلب الإفصاح عن البوتات. يمكن إيقافه عبر متغيّر `VITE_DISCLOSE_AI=true` قبل النشر.
+3. **حركات AI من client:** إن أغلق اللاعب التبويب أثناء دور AI ستتجمّد المباراة. الحل البديل (cron/scheduler) يحتاج بنية أعقد — أؤجّله للمرحلة التالية إن أردت.
 
