@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { findBestMove } from "@/lib/chessAI";
+import { sfx } from "@/lib/sounds";
 
 type Mode = "local" | "ai";
 type Difficulty = "easy" | "medium" | "hard";
@@ -73,7 +74,10 @@ const ChessGame = () => {
           setPromoDialog({ from: selected, to: sq });
           return;
         }
-        chess.move({ from: selected, to: sq });
+        const moved = chess.move({ from: selected, to: sq });
+        if (moved?.captured) sfx.capture(); else sfx.move();
+        if (chess.isCheck()) setTimeout(() => sfx.check(), 80);
+        if (chess.isCheckmate()) setTimeout(() => sfx.win(), 200);
         setLastMove({ from: selected, to: sq });
         setSelected(null);
         setLegalMoves([]);
@@ -120,11 +124,16 @@ const ChessGame = () => {
       const move = findBestMove(chess, difficulty);
       if (move) {
         const result = chess.move(move);
-        if (result) setLastMove({ from: result.from, to: result.to });
+        if (result) {
+          setLastMove({ from: result.from, to: result.to });
+          if (result.captured) sfx.capture(); else sfx.move();
+          if (chess.isCheck()) setTimeout(() => sfx.check(), 80);
+          if (chess.isCheckmate()) setTimeout(() => sfx.lose(), 200);
+        }
       }
       setAiThinking(false);
       sync();
-    }, 500);
+    }, 220);
     return () => clearTimeout(timeout);
   }, [fen, mode, turn, isGameOver, chess, difficulty, sync]);
 

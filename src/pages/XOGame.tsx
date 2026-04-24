@@ -4,6 +4,7 @@ import { ArrowLeft, RotateCcw, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { sfx } from "@/lib/sounds";
 
 type Cell = string | null;
 type Mode = "local" | "ai";
@@ -124,6 +125,7 @@ const XOGame = () => {
     const newBoard = [...board];
     newBoard[index] = isXTurn ? "X" : "O";
     setBoard(newBoard);
+    sfx.move();
 
     const result = checkWinner(newBoard);
     if (result.winner) {
@@ -132,6 +134,7 @@ const XOGame = () => {
       if (result.winner === "X") setScores((s) => ({ ...s, x: s.x + 1 }));
       else if (result.winner === "O") setScores((s) => ({ ...s, o: s.o + 1 }));
       else setScores((s) => ({ ...s, draw: s.draw + 1 }));
+      setTimeout(() => result.winner === "draw" ? sfx.click() : sfx.win(), 100);
       return;
     }
 
@@ -143,17 +146,18 @@ const XOGame = () => {
           const aiBoard = [...newBoard];
           aiBoard[aiIdx] = "O";
           setBoard(aiBoard);
+          sfx.move();
           const aiResult = checkWinner(aiBoard);
           if (aiResult.winner) {
             setWinner(aiResult.winner);
             setWinLine(aiResult.line);
-            if (aiResult.winner === "O") setScores((s) => ({ ...s, o: s.o + 1 }));
+            if (aiResult.winner === "O") { setScores((s) => ({ ...s, o: s.o + 1 })); setTimeout(() => sfx.lose(), 100); }
             else if (aiResult.winner === "draw") setScores((s) => ({ ...s, draw: s.draw + 1 }));
           } else {
             setIsXTurn(true);
           }
         }
-      }, 400);
+      }, 180);
     } else {
       setIsXTurn(!isXTurn);
     }
