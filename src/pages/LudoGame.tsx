@@ -387,12 +387,13 @@ const LudoGame = () => {
                           key={`${p.color}-${p.id}`}
                           onClick={() => isValid ? movePiece(p.id) : undefined}
                           disabled={!isValid}
-                          className={`${size} rounded-full border-2 transition-all ${
+                          className={`${size} rounded-full border-2 ${
                             isValid ? "animate-pulse cursor-pointer border-white shadow-lg scale-110 z-10" : "border-black/20 cursor-default"
                           }`}
                           style={{
                             backgroundColor: COLOR_HEX[p.color].bg,
                             boxShadow: isValid ? `0 0 8px ${COLOR_HEX[p.color].light}` : "none",
+                            transition: "transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 200ms",
                           }}
                         />
                       );

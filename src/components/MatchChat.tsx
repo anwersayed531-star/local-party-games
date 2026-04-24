@@ -69,9 +69,15 @@ export default function MatchChat({
             playerName: myNickname ?? "Friend",
           },
         });
-        if (error) return;
+        if (error) {
+          console.error("[MatchChat] ai-opponent-chat error:", error);
+          return;
+        }
         const reply = (data as any)?.reply;
-        if (!reply) return;
+        if (!reply) {
+          console.warn("[MatchChat] empty reply", data);
+          return;
+        }
         // Re-fetch current match state and append
         const { data: m } = await supabase.from("matches").select("state").eq("id", matchId).maybeSingle();
         const chat: ChatMessage[] = m?.state?.chat ?? [];
@@ -80,7 +86,9 @@ export default function MatchChat({
           .from("matches")
           .update({ state: { ...(m?.state ?? {}), chat: next } })
           .eq("id", matchId);
-      } catch {}
+      } catch (e) {
+        console.error("[MatchChat] unexpected:", e);
+      }
     }, delay);
     return () => clearTimeout(tid);
   }, [messages, opponentIsAi, myRole, matchId, aiName, aiLang, myNickname, i18n.language]);
