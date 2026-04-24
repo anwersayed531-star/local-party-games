@@ -75,73 +75,114 @@ export const sfx = {
   check: () => tone(880, 0.2, "square", 0.2),
 };
 
-// ---- Ambient background music (slow arpeggio loop) ----
-let musicNodes: { osc: OscillatorNode; gain: GainNode; lfo?: OscillatorNode }[] = [];
-let musicInterval: number | null = null;
+// ---- Ambient background music: gentle, warm, relaxing ----
+let musicTimer: number | null = null;
 let musicMaster: GainNode | null = null;
+let musicReverb: ConvolverNode | null = null;
 
+// Soft pentatonic in C major — relaxing, no harsh dissonance.
+// Frequencies chosen low/mid range to avoid "creepy" highs.
 const MELODY: number[] = [
-  // Soft pentatonic loop in A minor — calm wood-game feel
-  220, 261, 329, 392, 329, 261,
-  220, 246, 329, 440, 329, 246,
+  261.63, 329.63, 392.00, 329.63,   // C  E  G  E
+  293.66, 349.23, 440.00, 349.23,   // D  F  A  F
+  261.63, 329.63, 392.00, 523.25,   // C  E  G  C(high)
+  392.00, 329.63, 293.66, 261.63,   // G  E  D  C
 ];
+
+function makeReverb(c: AudioContext): ConvolverNode {
+  const conv = c.createConvolver();
+  const len = c.sampleRate * 2;
+  const buf = c.createBuffer(2, len, c.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < len; i++) {
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.5);
+    }
+  }
+  conv.buffer = buf;
+  return conv;
+}
 
 export function startMusic() {
   const { musicEnabled, musicVolume } = readSettings();
   if (!musicEnabled) return;
   const c = getCtx(); if (!c) return;
-  if (musicInterval !== null) return; // already playing
+  if (musicTimer !== null) return; // already playing
 
   musicMaster = c.createGain();
-  musicMaster.gain.value = musicVolume * 0.18;
-  musicMaster.connect(c.destination);
+  // Much softer overall — was 0.18, now 0.07 for a calm bed of sound
+  musicMaster.gain.value = musicVolume * 0.07;
+
+  // Gentle low-pass to soften any sharp partials (no harsh highs)
+  const lp = c.createBiquadFilter();
+  lp.type = "lowpass";
+  lp.frequency.value = 1800;
+  lp.Q.value = 0.5;
+
+  // Reverb tail for warmth/space
+  musicReverb = makeReverb(c);
+  const wet = c.createGain();
+  wet.gain.value = 0.35;
+
+  musicMaster.connect(lp);
+  lp.connect(c.destination);
+  lp.connect(musicReverb);
+  musicReverb.connect(wet);
+  wet.connect(c.destination);
 
   let step = 0;
   const tick = () => {
     if (!c || !musicMaster) return;
     const freq = MELODY[step % MELODY.length];
+    const now = c.currentTime;
+
+    // Main melody note — sine wave with slow attack/release for soothing pad-like feel
     const osc = c.createOscillator();
     const g = c.createGain();
     osc.type = "sine";
     osc.frequency.value = freq;
-    const now = c.currentTime;
     g.gain.setValueAtTime(0, now);
-    g.gain.linearRampToValueAtTime(0.5, now + 0.15);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+    g.gain.linearRampToValueAtTime(0.4, now + 0.4);   // slow attack (no clicks)
+    g.gain.linearRampToValueAtTime(0.25, now + 1.2);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 2.4);
     osc.connect(g); g.connect(musicMaster);
-    osc.start(now); osc.stop(now + 1);
+    osc.start(now); osc.stop(now + 2.5);
 
-    // soft bass every 2 steps
-    if (step % 2 === 0) {
+    // Subtle bass octave below, every 4 steps — adds warmth without being heavy
+    if (step % 4 === 0) {
       const b = c.createOscillator();
       const bg = c.createGain();
-      b.type = "triangle";
+      b.type = "sine";
       b.frequency.value = freq / 2;
       bg.gain.setValueAtTime(0, now);
-      bg.gain.linearRampToValueAtTime(0.4, now + 0.1);
-      bg.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+      bg.gain.linearRampToValueAtTime(0.3, now + 0.5);
+      bg.gain.exponentialRampToValueAtTime(0.001, now + 4);
       b.connect(bg); bg.connect(musicMaster);
-      b.start(now); b.stop(now + 1.5);
+      b.start(now); b.stop(now + 4);
     }
     step++;
   };
   tick();
-  musicInterval = window.setInterval(tick, 600);
+  // Slower tempo (was 600ms — now 1400ms) → very relaxed pace
+  musicTimer = window.setInterval(tick, 1400);
 }
 
 export function stopMusic() {
-  if (musicInterval !== null) { clearInterval(musicInterval); musicInterval = null; }
+  if (musicTimer !== null) { clearInterval(musicTimer); musicTimer = null; }
   if (musicMaster) {
     try { musicMaster.disconnect(); } catch {}
     musicMaster = null;
   }
-  musicNodes = [];
+  if (musicReverb) {
+    try { musicReverb.disconnect(); } catch {}
+    musicReverb = null;
+  }
 }
 
 export function refreshMusicVolume() {
   const { musicEnabled, musicVolume } = readSettings();
   if (!musicEnabled) { stopMusic(); return; }
-  if (musicMaster) musicMaster.gain.value = musicVolume * 0.18;
+  if (musicMaster) musicMaster.gain.value = musicVolume * 0.07;
   else startMusic();
 }
 
