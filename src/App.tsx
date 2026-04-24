@@ -13,6 +13,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Tournaments from "./pages/Tournaments";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import "@/lib/sounds"; // initializes ambient music on first user interaction
 
 const queryClient = new QueryClient();
 
