@@ -74,7 +74,10 @@ const ChessGame = () => {
           setPromoDialog({ from: selected, to: sq });
           return;
         }
-        chess.move({ from: selected, to: sq });
+        const moved = chess.move({ from: selected, to: sq });
+        if (moved?.captured) sfx.capture(); else sfx.move();
+        if (chess.isCheck()) setTimeout(() => sfx.check(), 80);
+        if (chess.isCheckmate()) setTimeout(() => sfx.win(), 200);
         setLastMove({ from: selected, to: sq });
         setSelected(null);
         setLegalMoves([]);
