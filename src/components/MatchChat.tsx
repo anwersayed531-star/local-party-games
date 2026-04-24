@@ -45,6 +45,40 @@ export default function MatchChat({
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [messages.length]);
 
+  // AI sends an opening greeting when chat is empty (only player1's client triggers it to avoid duplicates)
+  const greetSent = useRef(false);
+  useEffect(() => {
+    if (!opponentIsAi || myRole !== 1) return;
+    if (messages.length > 0) return;
+    if (greetSent.current) return;
+    greetSent.current = true;
+    const greetings: Record<string, string[]> = {
+      ar: ["يلا نلعب 🎮", "أهلاً 👋", "هاي، بالتوفيق!", "يلا بينا 😎"],
+      en: ["gl hf 🎮", "hey 👋", "let's go!", "good luck!"],
+      fr: ["salut 👋", "on y va !", "bonne chance 🎮"],
+      de: ["hi 👋", "viel glück!", "los geht's 🎮"],
+    };
+    const lang = (aiLang ?? i18n.language ?? "en").slice(0, 2);
+    const list = greetings[lang] ?? greetings.en;
+    const greet = list[Math.floor(Math.random() * list.length)];
+    const delay = 2000 + Math.random() * 2500;
+    const tid = setTimeout(async () => {
+      try {
+        const { data: m } = await supabase.from("matches").select("state").eq("id", matchId).maybeSingle();
+        const chat: ChatMessage[] = m?.state?.chat ?? [];
+        if (chat.length > 0) return; // someone already spoke
+        const next = [...chat, { from: 2 as 1 | 2, text: greet, ts: Date.now() }];
+        await supabase
+          .from("matches")
+          .update({ state: { ...(m?.state ?? {}), chat: next } })
+          .eq("id", matchId);
+      } catch (e) {
+        console.error("[MatchChat] greet failed", e);
+      }
+    }, delay);
+    return () => clearTimeout(tid);
+  }, [opponentIsAi, myRole, messages.length, matchId, aiLang, i18n.language]);
+
   // When opponent is AI and the latest message is from me, ask the AI for a reply.
   useEffect(() => {
     if (!opponentIsAi || myRole === 0) return;
