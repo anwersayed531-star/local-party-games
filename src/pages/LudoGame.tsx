@@ -4,6 +4,7 @@ import { ArrowLeft, RotateCcw, Settings2, Dice5 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { sfx } from "@/lib/sounds";
 
 type PlayerColor = "red" | "green" | "yellow" | "blue";
 const ALL_COLORS: PlayerColor[] = ["red", "green", "yellow", "blue"];
@@ -111,11 +112,12 @@ const LudoGame = () => {
   const doRoll = useCallback(() => {
     if (!mustRoll || winner || rolling) return;
     setRolling(true);
+    sfx.dice();
     let count = 0;
     const iv = setInterval(() => {
       setDispDice(Math.floor(Math.random() * 6) + 1);
       count++;
-      if (count > 12) {
+      if (count > 8) {
         clearInterval(iv);
         const val = Math.floor(Math.random() * 6) + 1;
         setDispDice(val);
@@ -134,13 +136,13 @@ const LudoGame = () => {
             setSixes(0);
             setValidPieces([]);
             setMessage(`دور ${next} - ارمِ النرد!`);
-          }, 800);
+          }, 500);
         } else {
           setValidPieces(valid);
           setMessage(`${current} رمى ${val}! اختر قطعة.`);
         }
       }
-    }, 70);
+    }, 40);
   }, [mustRoll, winner, rolling, pieces, current, getValid, nextPlayer]);
 
   const movePiece = useCallback((pieceId: number) => {
@@ -179,9 +181,13 @@ const LudoGame = () => {
         setMessage(`🏆 ${piece.color} فاز!`);
         setPieces(newPieces);
         setValidPieces([]);
+        sfx.win();
         return;
       }
     }
+
+    // Sound: capture or normal move
+    if (captured) sfx.capture(); else sfx.move();
 
     setPieces(newPieces);
     setValidPieces([]);
@@ -244,7 +250,7 @@ const LudoGame = () => {
         }
       }
       movePiece(bestId);
-    }, 600);
+    }, 350);
     return () => clearTimeout(timeout);
   }, [validPieces, current, aiPlayers, mustRoll, winner, pieces, dice, movePiece]);
 
@@ -252,7 +258,7 @@ const LudoGame = () => {
   useEffect(() => {
     if (winner || !mustRoll) return;
     if (!aiPlayers.includes(current)) return;
-    const timeout = setTimeout(() => doRoll(), 700);
+    const timeout = setTimeout(() => doRoll(), 400);
     return () => clearTimeout(timeout);
   }, [mustRoll, current, aiPlayers, winner, doRoll]);
 
