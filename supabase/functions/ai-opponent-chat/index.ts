@@ -72,7 +72,7 @@ ABSOLUTE RULES — never break:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.5-flash-lite",
         messages,
         temperature: 0.9,
         max_tokens: 60,
@@ -80,7 +80,8 @@ ABSOLUTE RULES — never break:
     });
 
     if (!resp.ok) {
-      // Rate-limited or other gateway issue — degrade gracefully
+      const errText = await resp.text().catch(() => "");
+      console.error("ai-gateway error:", resp.status, errText);
       return new Response(JSON.stringify({ reply: pickFallback(lang) }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
