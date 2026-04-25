@@ -474,6 +474,10 @@ export default function OnlineMatch() {
               aiName={aiInfo?.name}
               aiLang={aiInfo?.lang}
               myNickname={stripFlag(myRole === 1 ? match.player1_nickname : match.player2_nickname)}
+              gameType={match.game}
+              matchStatus={match.status}
+              winner={match.winner}
+              aiRole={aiInfo?.role as 1 | 2 | undefined}
             />
           </div>
         )}
