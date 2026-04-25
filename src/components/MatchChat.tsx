@@ -23,6 +23,11 @@ interface Props {
   aiName?: string;
   aiLang?: string;
   myNickname?: string;
+  // Live game context so the AI can react meaningfully
+  gameType?: "chess" | "xo" | "ludo";
+  matchStatus?: "waiting" | "active" | "finished" | "abandoned";
+  winner?: number | null; // 0 draw, 1/2 player, null ongoing
+  aiRole?: 1 | 2;
 }
 
 export default function MatchChat({
