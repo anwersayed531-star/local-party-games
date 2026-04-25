@@ -139,7 +139,7 @@ export default function OnlineMatch() {
     if (aiMoveScheduled.current === dedupeKey) return;
     aiMoveScheduled.current = dedupeKey;
 
-    const delayMs = 1500 + Math.random() * 4500; // 1.5–6 s
+    const delayMs = 400 + Math.random() * 600; // 0.4–1 s — feels snappy
     const tid = window.setTimeout(async () => {
       try {
         if (match.game === "chess") {
