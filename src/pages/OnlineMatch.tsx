@@ -10,7 +10,18 @@ import { useGuest } from "@/hooks/useGuest";
 import { toast } from "sonner";
 import MatchChat, { type ChatMessage } from "@/components/MatchChat";
 import { findBestMove } from "@/lib/chessAI";
-import { extractFlag, stripFlag } from "@/lib/countries";
+import { extractFlag, stripFlag, COUNTRIES, NEIGHBORS, getCountry } from "@/lib/countries";
+import { generateAiName } from "@/lib/aiNames";
+
+const AI_FALLBACK_MS = 15_000;
+
+function pickAiCountry(playerNickname?: string | null): string {
+  const flag = extractFlag(playerNickname);
+  const player = COUNTRIES.find((c) => c.flag === flag);
+  const neighbors = player ? NEIGHBORS[player.code] : undefined;
+  const pool = neighbors && neighbors.length > 0 ? neighbors : COUNTRIES.map((c) => c.code);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
 
 type GameType = "chess" | "xo" | "ludo";
 
