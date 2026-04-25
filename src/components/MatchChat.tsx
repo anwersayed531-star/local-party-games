@@ -144,7 +144,7 @@ export default function MatchChat({
       }
     }, delay);
     return () => clearTimeout(tid);
-  }, [messages, opponentIsAi, myRole, matchId, aiName, aiLang, myNickname, i18n.language]);
+  }, [messages, opponentIsAi, myRole, matchId, aiName, aiLang, myNickname, i18n.language, matchStatus, winner, aiRole, gameType]);
 
   const handleSend = async () => {
     const trimmed = text.trim();
