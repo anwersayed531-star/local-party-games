@@ -121,8 +121,6 @@ export default function OnlineLobby() {
         setSearching(false);
         return;
       }
-      // Schedule AI to join after AI_FALLBACK_MS if no human shows up
-      scheduleAiFallback(created.id, guest.nickname);
       navigate(`/online/${game}/${created.id}`);
     } finally {
       setBusy(false);
