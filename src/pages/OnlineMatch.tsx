@@ -128,6 +128,57 @@ export default function OnlineMatch() {
     // eslint-disable-next-line
   }, [match?.status, match?.winner]);
 
+  // ============ AI FALLBACK (auto-join after 15s of waiting) ============
+  const aiJoinTriggered = useRef(false);
+  const joinAiOpponent = async (matchToUse?: MatchRow | null) => {
+    const m = matchToUse ?? match;
+    if (!m || !guest) return;
+    if (m.status !== "waiting" || m.player2_id) return;
+    if (m.player1_id !== guest.id) return; // only host triggers
+    if (aiJoinTriggered.current) return;
+    aiJoinTriggered.current = true;
+
+    const ai = generateAiName(m.player1_nickname ?? guest.nickname);
+    const aiCountryCode = pickAiCountry(m.player1_nickname);
+    const aiFlag = getCountry(aiCountryCode)?.flag ?? "🏳️";
+    const aiId = crypto.randomUUID();
+    const aiNickname = `${aiFlag} ${ai.name}`.slice(0, 24);
+
+    try {
+      await supabase.from("guests").insert({ id: aiId, nickname: aiNickname }).select().maybeSingle();
+    } catch {}
+
+    const baseState = m.state ?? {};
+    const { error } = await supabase
+      .from("matches")
+      .update({
+        player2_id: aiId,
+        player2_nickname: aiNickname,
+        status: "active",
+        state: {
+          ...baseState,
+          ai: { role: 2, name: ai.name, lang: ai.lang, country: aiCountryCode },
+        },
+      })
+      .eq("id", m.id)
+      .eq("status", "waiting");
+    if (error) {
+      console.error("[OnlineMatch] AI join failed", error);
+      aiJoinTriggered.current = false;
+    }
+  };
+
+  useEffect(() => {
+    if (!match || !guest) return;
+    if (match.status !== "waiting") return;
+    if (match.mode !== "matchmaking") return;
+    if (match.player1_id !== guest.id) return;
+    if (match.player2_id) return;
+    const tid = window.setTimeout(() => joinAiOpponent(match), AI_FALLBACK_MS);
+    return () => window.clearTimeout(tid);
+    // eslint-disable-next-line
+  }, [match?.id, match?.status, match?.player2_id, guest?.id]);
+
   // ============ AI MOVE EXECUTOR ============
   // When opponent is AI and it's their turn, the human player's client triggers the AI move.
   useEffect(() => {
