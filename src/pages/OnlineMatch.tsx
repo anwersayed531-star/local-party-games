@@ -274,36 +274,50 @@ export default function OnlineMatch() {
     }
     const chess = chessRef.current;
     const piece = chess.get(sq as any);
-    if (selected) {
-      if (selected === sq) { setSelected(null); return; }
-      const move = chess.move({ from: selected as any, to: sq as any, promotion: "q" });
-      if (move) {
-        const newFen = chess.fen();
-        const isOver = chess.isGameOver();
-        let winner: number | null = null;
-        if (chess.isCheckmate()) winner = myRole;
-        else if (chess.isDraw() || chess.isStalemate()) winner = 0;
-        const update: any = {
-          state: { ...match.state, fen: newFen, lastMove: { from: selected, to: sq } },
-          current_turn: myRole === 1 ? 2 : 1,
-        };
-        if (isOver) {
-          update.status = "finished";
-          update.winner = winner;
-          update.finished_at = new Date().toISOString();
-        }
-        await supabase.from("matches").update(update).eq("id", match.id);
-        setSelected(null);
-      } else if (piece && ((piece.color === "w" && myRole === 1) || (piece.color === "b" && myRole === 2))) {
-        setSelected(sq);
-      } else {
-        setSelected(null);
-      }
-    } else {
-      if (piece && ((piece.color === "w" && myRole === 1) || (piece.color === "b" && myRole === 2))) {
-        setSelected(sq);
-      }
+    const myColor = myRole === 1 ? "w" : "b";
+    const isOwnPiece = piece && piece.color === myColor;
+
+    // No selection yet → only allow selecting own pieces
+    if (!selected) {
+      if (isOwnPiece) setSelected(sq);
+      return;
     }
+
+    // Click same square → deselect
+    if (selected === sq) { setSelected(null); return; }
+
+    // Click another of my own pieces → switch selection
+    if (isOwnPiece) { setSelected(sq); return; }
+
+    // Try the move; chess.js throws on illegal moves
+    let move: any = null;
+    try {
+      move = chess.move({ from: selected as any, to: sq as any, promotion: "q" });
+    } catch {
+      move = null;
+    }
+
+    if (!move) {
+      // Illegal move — keep current selection so the user can try again
+      return;
+    }
+
+    const newFen = chess.fen();
+    const isOver = chess.isGameOver();
+    let winner: number | null = null;
+    if (chess.isCheckmate()) winner = myRole;
+    else if (chess.isDraw() || chess.isStalemate()) winner = 0;
+    const update: any = {
+      state: { ...match.state, fen: newFen, lastMove: { from: selected, to: sq } },
+      current_turn: myRole === 1 ? 2 : 1,
+    };
+    if (isOver) {
+      update.status = "finished";
+      update.winner = winner;
+      update.finished_at = new Date().toISOString();
+    }
+    await supabase.from("matches").update(update).eq("id", match.id);
+    setSelected(null);
   };
 
   // ============ XO ============
