@@ -9,8 +9,6 @@ import GuestPrompt from "@/components/GuestPrompt";
 import { useGuest } from "@/hooks/useGuest";
 import { db as supabase } from "@/lib/db";
 import { toast } from "sonner";
-import { generateAiName } from "@/lib/aiNames";
-import { COUNTRIES, NEIGHBORS, getCountry, extractFlag } from "@/lib/countries";
 
 type GameType = "chess" | "xo" | "ludo";
 
@@ -20,9 +18,6 @@ const GAME_META: Record<GameType, { icon: typeof Crown; color: string }> = {
   ludo: { icon: Dice5, color: "from-blue-900/60 to-indigo-900/60" },
 };
 
-// 15s before AI fallback joins matchmaking
-const AI_FALLBACK_MS = 15_000;
-
 function genCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
@@ -31,15 +26,6 @@ function initialState(game: GameType) {
   if (game === "chess") return { fen: "start", lastMove: null, chat: [] };
   if (game === "xo") return { board: Array(9).fill(null), size: 3, chat: [] };
   return { positions: {}, chat: [] };
-}
-
-function pickAiCountry(playerNickname?: string | null): string {
-  // Try to read player's flag and pick a neighbor; otherwise random.
-  const flag = extractFlag(playerNickname);
-  const player = COUNTRIES.find((c) => c.flag === flag);
-  const neighbors = player ? NEIGHBORS[player.code] : undefined;
-  const pool = neighbors && neighbors.length > 0 ? neighbors : COUNTRIES.map((c) => c.code);
-  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 export default function OnlineLobby() {
@@ -52,8 +38,6 @@ export default function OnlineLobby() {
   const [joinCode, setJoinCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [searching, setSearching] = useState(false);
-  const aiTimerRef = useRef<number | null>(null);
-  const myWaitingMatchRef = useRef<string | null>(null);
 
   if (!game || !["chess", "xo", "ludo"].includes(game)) {
     return <div className="p-8">Invalid game</div>;
@@ -72,13 +56,6 @@ export default function OnlineLobby() {
     // eslint-disable-next-line
   }, [guest, pendingAction]);
 
-  // Cleanup AI timer on unmount
-  useEffect(() => {
-    return () => {
-      if (aiTimerRef.current) window.clearTimeout(aiTimerRef.current);
-    };
-  }, []);
-
   const ensureGuest = (action: "match" | "create" | "join") => {
     if (!guest) {
       setPendingAction(action);
@@ -86,48 +63,6 @@ export default function OnlineLobby() {
       return false;
     }
     return true;
-  };
-
-  // Schedules an AI to join my waiting matchmaking match if no one shows up.
-  const scheduleAiFallback = (matchId: string, playerNickname: string) => {
-    if (aiTimerRef.current) window.clearTimeout(aiTimerRef.current);
-    myWaitingMatchRef.current = matchId;
-    aiTimerRef.current = window.setTimeout(async () => {
-      // Re-check the match is still waiting and still mine
-      const { data } = await supabase
-        .from("matches")
-        .select("id,status,player2_id")
-        .eq("id", matchId)
-        .maybeSingle();
-      if (!data || data.status !== "waiting" || data.player2_id) return;
-
-      const ai = generateAiName(playerNickname);
-      const aiCountryCode = pickAiCountry(playerNickname);
-      const aiFlag = getCountry(aiCountryCode)?.flag ?? "🏳️";
-      // Synthetic AI guest id (uuid). Mark as AI by storing in nickname prefix? Use a known sentinel pattern.
-      // We use a real uuid so it satisfies uuid columns; the "AI" flag is stored in match.state.ai = true.
-      const aiId = crypto.randomUUID();
-      const aiNickname = `${aiFlag} ${ai.name}`.slice(0, 24);
-
-      // Insert a guest row for the AI so leaderboard FK is happy if it ever updates.
-      await supabase.from("guests").insert({ id: aiId, nickname: aiNickname }).select().maybeSingle();
-
-      const { error } = await supabase
-        .from("matches")
-        .update({
-          player2_id: aiId,
-          player2_nickname: aiNickname,
-          status: "active",
-          state: {
-            ...(initialState(game as GameType)),
-            ai: { role: 2, name: ai.name, lang: ai.lang, country: aiCountryCode },
-          },
-        })
-        .eq("id", matchId)
-        .eq("status", "waiting");
-      if (error) return;
-      // Real-time channel on the match page will pick up the change automatically.
-    }, AI_FALLBACK_MS) as unknown as number;
   };
 
   const doMatchmaking = async () => {
@@ -186,8 +121,6 @@ export default function OnlineLobby() {
         setSearching(false);
         return;
       }
-      // Schedule AI to join after AI_FALLBACK_MS if no human shows up
-      scheduleAiFallback(created.id, guest.nickname);
       navigate(`/online/${game}/${created.id}`);
     } finally {
       setBusy(false);
