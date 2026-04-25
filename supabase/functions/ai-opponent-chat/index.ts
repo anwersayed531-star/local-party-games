@@ -86,7 +86,7 @@ ABSOLUTE RULES — never break:
       { role: "user", parts: [{ text: message }] },
     ];
 
-    const model = "gemini-1.5-flash";
+    const model = "gemini-flash-latest";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
 
     const resp = await fetch(url, {
