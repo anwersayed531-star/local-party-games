@@ -39,6 +39,10 @@ export default function MatchChat({
   aiName,
   aiLang,
   myNickname,
+  gameType,
+  matchStatus,
+  winner,
+  aiRole,
 }: Props) {
   const { t, i18n } = useTranslation();
   const [text, setText] = useState("");
