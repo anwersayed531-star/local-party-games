@@ -23,6 +23,11 @@ interface Props {
   aiName?: string;
   aiLang?: string;
   myNickname?: string;
+  // Live game context so the AI can react meaningfully
+  gameType?: "chess" | "xo" | "ludo";
+  matchStatus?: "waiting" | "active" | "finished" | "abandoned";
+  winner?: number | null; // 0 draw, 1/2 player, null ongoing
+  aiRole?: 1 | 2;
 }
 
 export default function MatchChat({
@@ -34,6 +39,10 @@ export default function MatchChat({
   aiName,
   aiLang,
   myNickname,
+  gameType,
+  matchStatus,
+  winner,
+  aiRole,
 }: Props) {
   const { t, i18n } = useTranslation();
   const [text, setText] = useState("");
@@ -91,6 +100,14 @@ export default function MatchChat({
     const delay = 1200 + Math.random() * 2500;
     const tid = setTimeout(async () => {
       try {
+        const gameStatus =
+          matchStatus === "finished"
+            ? winner === 0
+              ? "draw"
+              : winner === aiRole
+              ? "ai_won"
+              : "ai_lost"
+            : "ongoing";
         const { data, error } = await sb2.functions.invoke("ai-opponent-chat", {
           body: {
             message: last.text,
@@ -101,6 +118,8 @@ export default function MatchChat({
             aiName: aiName ?? "Player",
             lang: aiLang ?? i18n.language ?? "en",
             playerName: myNickname ?? "Friend",
+            gameType: gameType ?? "chess",
+            gameStatus,
           },
         });
         if (error) {
@@ -125,7 +144,7 @@ export default function MatchChat({
       }
     }, delay);
     return () => clearTimeout(tid);
-  }, [messages, opponentIsAi, myRole, matchId, aiName, aiLang, myNickname, i18n.language]);
+  }, [messages, opponentIsAi, myRole, matchId, aiName, aiLang, myNickname, i18n.language, matchStatus, winner, aiRole, gameType]);
 
   const handleSend = async () => {
     const trimmed = text.trim();
