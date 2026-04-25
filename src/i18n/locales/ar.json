@@ -5,45 +5,121 @@
     "footer": "Classic Games Collection v1.0"
   },
   "games": {
-    "xo": { "title": "XO", "subtitle": "تيك تاك تو" },
-    "chess": { "title": "شطرنج", "subtitle": "Chess" },
-    "ludo": { "title": "لودو", "subtitle": "Ludo" }
+    "xo": {
+      "title": "XO",
+      "subtitle": "تيك تاك تو"
+    },
+    "chess": {
+      "title": "شطرنج",
+      "subtitle": "Chess"
+    },
+    "ludo": {
+      "title": "لودو",
+      "subtitle": "Ludo"
+    }
   },
   "common": {
-    "back": "رجوع", "restart": "إعادة", "settings": "الإعدادات",
-    "newGame": "لعبة جديدة", "vsHuman": "لاعبان", "vsComputer": "ضد الكمبيوتر",
-    "easy": "سهل", "medium": "متوسط", "hard": "صعب",
-    "you": "أنت", "computer": "الكمبيوتر", "player": "اللاعب", "language": "اللغة"
+    "back": "رجوع",
+    "restart": "إعادة",
+    "settings": "الإعدادات",
+    "newGame": "لعبة جديدة",
+    "vsHuman": "لاعبان",
+    "vsComputer": "ضد الكمبيوتر",
+    "easy": "سهل",
+    "medium": "متوسط",
+    "hard": "صعب",
+    "you": "أنت",
+    "computer": "الكمبيوتر",
+    "player": "اللاعب",
+    "language": "اللغة"
   },
-  "settings": { "sound": "مؤثرات صوتية", "music": "موسيقى خلفية", "title": "الإعدادات" },
-  "xo": { "gridSize": "حجم الشبكة", "symbols": "الرموز", "wins": "فاز!", "draw": "تعادل!", "turn": "دور" },
+  "settings": {
+    "sound": "مؤثرات صوتية",
+    "music": "موسيقى خلفية",
+    "title": "الإعدادات"
+  },
+  "xo": {
+    "gridSize": "حجم الشبكة",
+    "symbols": "الرموز",
+    "wins": "فاز!",
+    "draw": "تعادل!",
+    "turn": "دور"
+  },
   "chess": {
-    "checkmate": "كش ملك!", "stalemate": "تعادل!", "check": "كش!",
-    "white": "الأبيض", "black": "الأسود",
-    "theme": "ثيم اللوحة", "wood": "خشبي", "marble": "رخامي", "plain": "بسيط"
+    "checkmate": "كش ملك!",
+    "stalemate": "تعادل!",
+    "check": "كش!",
+    "white": "الأبيض",
+    "black": "الأسود",
+    "theme": "ثيم اللوحة",
+    "wood": "خشبي",
+    "marble": "رخامي",
+    "plain": "بسيط"
   },
-  "ludo": { "rollDice": "ارمِ النرد", "winner": "الفائز", "red": "أحمر", "blue": "أزرق", "green": "أخضر", "yellow": "أصفر" },
-  "home": { "online": "أونلاين", "ranking": "الترتيب", "viewTournaments": "البطولات", "login": "دخول", "logout": "خروج" },
+  "ludo": {
+    "rollDice": "ارمِ النرد",
+    "winner": "الفائز",
+    "red": "أحمر",
+    "blue": "أزرق",
+    "green": "أخضر",
+    "yellow": "أصفر"
+  },
+  "home": {
+    "online": "أونلاين",
+    "ranking": "الترتيب",
+    "viewTournaments": "البطولات",
+    "login": "دخول",
+    "logout": "خروج"
+  },
   "online": {
-    "title": "اللعب أونلاين", "subtitle": "العب مع لاعبين حقيقيين من حول العالم",
-    "matchmaking": "بحث تلقائي", "matchmakingDesc": "ابحث عن خصم متاح الآن", "findOpponent": "ابحث عن خصم",
-    "privateRoom": "غرفة خاصة", "privateRoomDesc": "العب مع صديق عبر كود الغرفة",
-    "createRoom": "أنشئ غرفة", "join": "ادخل", "codePlaceholder": "كود الغرفة",
-    "leaderboard": "أفضل اللاعبين", "tournaments": "البطولات", "tournamentsDesc": "تنافس على الجوائز والمراكز",
-    "noTournaments": "لا توجد بطولات حالياً", "noPlayersYet": "لا يوجد لاعبون بعد، كن الأول!",
-    "joinTournament": "انضم للبطولة", "joined": "مشترك", "joinError": "حدث خطأ أثناء الانضمام", "play": "العب",
-    "tStatus": { "open": "مفتوحة", "running": "جارية", "finished": "منتهية" },
-    "chooseNickname": "اختر اسماً مستعاراً", "chooseNicknameDesc": "هذا الاسم سيظهر للاعبين الآخرين",
-    "nicknamePlaceholder": "اسمك المستعار", "nicknameTooShort": "الاسم قصير جداً (حرفان على الأقل)",
-    "nicknameError": "تعذر حفظ الاسم، حاول مجدداً", "continue": "متابعة", "playingAs": "تلعب باسم",
-    "matchError": "تعذر إنشاء أو الانضمام للمباراة", "invalidCode": "كود غير صالح",
-    "roomNotFound": "الغرفة غير موجودة", "roomFull": "الغرفة ممتلئة أو منتهية",
-    "waitingOpponent": "بانتظار الخصم...", "shareCode": "شارك هذا الكود مع صديقك", "codeCopied": "تم نسخ الكود",
-    "you": "أنت", "youWon": "🎉 لقد فزت!", "youLost": "خسرت! حظ أوفر المرة القادمة",
-    "draw": "تعادل", "matchEnded": "انتهت المباراة",
-    "notYourTurn": "ليس دورك بعد", "opponentTurn": "دور الخصم...",
+    "title": "اللعب أونلاين",
+    "subtitle": "العب مع لاعبين حقيقيين من حول العالم",
+    "matchmaking": "بحث تلقائي",
+    "matchmakingDesc": "ابحث عن خصم متاح الآن",
+    "findOpponent": "ابحث عن خصم",
+    "privateRoom": "غرفة خاصة",
+    "privateRoomDesc": "العب مع صديق عبر كود الغرفة",
+    "createRoom": "أنشئ غرفة",
+    "join": "ادخل",
+    "codePlaceholder": "كود الغرفة",
+    "leaderboard": "أفضل اللاعبين",
+    "tournaments": "البطولات",
+    "tournamentsDesc": "تنافس على الجوائز والمراكز",
+    "noTournaments": "لا توجد بطولات حالياً",
+    "noPlayersYet": "لا يوجد لاعبون بعد، كن الأول!",
+    "joinTournament": "انضم للبطولة",
+    "joined": "مشترك",
+    "joinError": "حدث خطأ أثناء الانضمام",
+    "play": "العب",
+    "tStatus": {
+      "open": "مفتوحة",
+      "running": "جارية",
+      "finished": "منتهية"
+    },
+    "chooseNickname": "اختر اسماً مستعاراً",
+    "chooseNicknameDesc": "هذا الاسم سيظهر للاعبين الآخرين",
+    "nicknamePlaceholder": "اسمك المستعار",
+    "nicknameTooShort": "الاسم قصير جداً (حرفان على الأقل)",
+    "nicknameError": "تعذر حفظ الاسم، حاول مجدداً",
+    "continue": "متابعة",
+    "playingAs": "تلعب باسم",
+    "matchError": "تعذر إنشاء أو الانضمام للمباراة",
+    "invalidCode": "كود غير صالح",
+    "roomNotFound": "الغرفة غير موجودة",
+    "roomFull": "الغرفة ممتلئة أو منتهية",
+    "waitingOpponent": "بانتظار الخصم...",
+    "shareCode": "شارك هذا الكود مع صديقك",
+    "codeCopied": "تم نسخ الكود",
+    "you": "أنت",
+    "youWon": "🎉 لقد فزت!",
+    "youLost": "خسرت! حظ أوفر المرة القادمة",
+    "draw": "تعادل",
+    "matchEnded": "انتهت المباراة",
+    "notYourTurn": "ليس دورك بعد",
+    "opponentTurn": "دور الخصم...",
     "searchingOpponent": "جاري البحث عن خصم...",
-    "ludoOnlineSoon": "لودو أونلاين قريباً — العب الشطرنج وXO الآن"
+    "ludoOnlineSoon": "لودو أونلاين قريباً — العب الشطرنج وXO الآن",
+    "playVsAi": "العب الآن ضد لاعب افتراضي"
   },
   "auth": {
     "title": "حسابك",

@@ -1,32 +1,125 @@
 {
-  "app": { "title": "🎮 Game Hub", "subtitle": "Jeux classiques au design élégant", "footer": "Classic Games Collection v1.0" },
-  "games": { "xo": { "title": "XO", "subtitle": "Morpion" }, "chess": { "title": "Échecs", "subtitle": "Stratégie" }, "ludo": { "title": "Ludo", "subtitle": "Jeu de plateau" } },
-  "common": { "back": "Retour", "restart": "Recommencer", "settings": "Paramètres", "newGame": "Nouvelle partie", "vsHuman": "2 Joueurs", "vsComputer": "vs Ordinateur", "easy": "Facile", "medium": "Moyen", "hard": "Difficile", "you": "Vous", "computer": "Ordinateur", "player": "Joueur", "language": "Langue" },
-  "settings": { "sound": "Effets sonores", "music": "Musique de fond", "title": "Paramètres" },
-  "xo": { "gridSize": "Taille de grille", "symbols": "Symboles", "wins": "gagne!", "draw": "Match nul!", "turn": "Tour" },
-  "chess": { "checkmate": "Échec et mat!", "stalemate": "Pat!", "check": "Échec!", "white": "Blanc", "black": "Noir", "theme": "Thème du plateau", "wood": "Bois", "marble": "Marbre", "plain": "Simple" },
-  "ludo": { "rollDice": "Lancer le dé", "winner": "Gagnant", "red": "Rouge", "blue": "Bleu", "green": "Vert", "yellow": "Jaune" },
-  "home": { "online": "En ligne", "ranking": "Classement", "viewTournaments": "Tournois", "login": "Connexion", "logout": "Déconnexion" },
+  "app": {
+    "title": "🎮 Game Hub",
+    "subtitle": "Jeux classiques au design élégant",
+    "footer": "Classic Games Collection v1.0"
+  },
+  "games": {
+    "xo": {
+      "title": "XO",
+      "subtitle": "Morpion"
+    },
+    "chess": {
+      "title": "Échecs",
+      "subtitle": "Stratégie"
+    },
+    "ludo": {
+      "title": "Ludo",
+      "subtitle": "Jeu de plateau"
+    }
+  },
+  "common": {
+    "back": "Retour",
+    "restart": "Recommencer",
+    "settings": "Paramètres",
+    "newGame": "Nouvelle partie",
+    "vsHuman": "2 Joueurs",
+    "vsComputer": "vs Ordinateur",
+    "easy": "Facile",
+    "medium": "Moyen",
+    "hard": "Difficile",
+    "you": "Vous",
+    "computer": "Ordinateur",
+    "player": "Joueur",
+    "language": "Langue"
+  },
+  "settings": {
+    "sound": "Effets sonores",
+    "music": "Musique de fond",
+    "title": "Paramètres"
+  },
+  "xo": {
+    "gridSize": "Taille de grille",
+    "symbols": "Symboles",
+    "wins": "gagne!",
+    "draw": "Match nul!",
+    "turn": "Tour"
+  },
+  "chess": {
+    "checkmate": "Échec et mat!",
+    "stalemate": "Pat!",
+    "check": "Échec!",
+    "white": "Blanc",
+    "black": "Noir",
+    "theme": "Thème du plateau",
+    "wood": "Bois",
+    "marble": "Marbre",
+    "plain": "Simple"
+  },
+  "ludo": {
+    "rollDice": "Lancer le dé",
+    "winner": "Gagnant",
+    "red": "Rouge",
+    "blue": "Bleu",
+    "green": "Vert",
+    "yellow": "Jaune"
+  },
+  "home": {
+    "online": "En ligne",
+    "ranking": "Classement",
+    "viewTournaments": "Tournois",
+    "login": "Connexion",
+    "logout": "Déconnexion"
+  },
   "online": {
-    "title": "Jouer en ligne", "subtitle": "Jouez avec de vrais joueurs du monde entier",
-    "matchmaking": "Partie rapide", "matchmakingDesc": "Trouver un adversaire maintenant", "findOpponent": "Trouver un adversaire",
-    "privateRoom": "Salle privée", "privateRoomDesc": "Jouer avec un ami via un code",
-    "createRoom": "Créer une salle", "join": "Rejoindre", "codePlaceholder": "Code de la salle",
-    "leaderboard": "Meilleurs joueurs", "tournaments": "Tournois", "tournamentsDesc": "Compétitionnez pour des prix",
-    "noTournaments": "Aucun tournoi disponible", "noPlayersYet": "Aucun joueur, soyez le premier!",
-    "joinTournament": "Rejoindre le tournoi", "joined": "Inscrit", "joinError": "Impossible de rejoindre", "play": "Jouer",
-    "tStatus": { "open": "Ouvert", "running": "En cours", "finished": "Terminé" },
-    "chooseNickname": "Choisissez un pseudo", "chooseNicknameDesc": "Visible par les autres joueurs",
-    "nicknamePlaceholder": "Votre pseudo", "nicknameTooShort": "Pseudo trop court (min 2 caractères)",
-    "nicknameError": "Impossible d'enregistrer le pseudo", "continue": "Continuer", "playingAs": "Vous jouez en tant que",
-    "matchError": "Impossible de créer ou rejoindre", "invalidCode": "Code invalide",
-    "roomNotFound": "Salle introuvable", "roomFull": "Salle pleine ou terminée",
-    "waitingOpponent": "En attente de l'adversaire...", "shareCode": "Partagez ce code avec votre ami", "codeCopied": "Code copié",
-    "you": "vous", "youWon": "🎉 Victoire!", "youLost": "Défaite! La prochaine fois",
-    "draw": "Match nul", "matchEnded": "Partie terminée",
-    "notYourTurn": "Ce n'est pas votre tour", "opponentTurn": "Tour de l'adversaire...",
+    "title": "Jouer en ligne",
+    "subtitle": "Jouez avec de vrais joueurs du monde entier",
+    "matchmaking": "Partie rapide",
+    "matchmakingDesc": "Trouver un adversaire maintenant",
+    "findOpponent": "Trouver un adversaire",
+    "privateRoom": "Salle privée",
+    "privateRoomDesc": "Jouer avec un ami via un code",
+    "createRoom": "Créer une salle",
+    "join": "Rejoindre",
+    "codePlaceholder": "Code de la salle",
+    "leaderboard": "Meilleurs joueurs",
+    "tournaments": "Tournois",
+    "tournamentsDesc": "Compétitionnez pour des prix",
+    "noTournaments": "Aucun tournoi disponible",
+    "noPlayersYet": "Aucun joueur, soyez le premier!",
+    "joinTournament": "Rejoindre le tournoi",
+    "joined": "Inscrit",
+    "joinError": "Impossible de rejoindre",
+    "play": "Jouer",
+    "tStatus": {
+      "open": "Ouvert",
+      "running": "En cours",
+      "finished": "Terminé"
+    },
+    "chooseNickname": "Choisissez un pseudo",
+    "chooseNicknameDesc": "Visible par les autres joueurs",
+    "nicknamePlaceholder": "Votre pseudo",
+    "nicknameTooShort": "Pseudo trop court (min 2 caractères)",
+    "nicknameError": "Impossible d'enregistrer le pseudo",
+    "continue": "Continuer",
+    "playingAs": "Vous jouez en tant que",
+    "matchError": "Impossible de créer ou rejoindre",
+    "invalidCode": "Code invalide",
+    "roomNotFound": "Salle introuvable",
+    "roomFull": "Salle pleine ou terminée",
+    "waitingOpponent": "En attente de l'adversaire...",
+    "shareCode": "Partagez ce code avec votre ami",
+    "codeCopied": "Code copié",
+    "you": "vous",
+    "youWon": "🎉 Victoire!",
+    "youLost": "Défaite! La prochaine fois",
+    "draw": "Match nul",
+    "matchEnded": "Partie terminée",
+    "notYourTurn": "Ce n'est pas votre tour",
+    "opponentTurn": "Tour de l'adversaire...",
     "searchingOpponent": "Recherche d'un adversaire...",
-    "ludoOnlineSoon": "Ludo en ligne bientôt — essayez Échecs ou XO"
+    "ludoOnlineSoon": "Ludo en ligne bientôt — essayez Échecs ou XO",
+    "playVsAi": "Jouer maintenant contre IA"
   },
   "auth": {
     "title": "Votre compte",
