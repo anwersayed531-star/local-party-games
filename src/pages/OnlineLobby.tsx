@@ -9,8 +9,6 @@ import GuestPrompt from "@/components/GuestPrompt";
 import { useGuest } from "@/hooks/useGuest";
 import { db as supabase } from "@/lib/db";
 import { toast } from "sonner";
-import { generateAiName } from "@/lib/aiNames";
-import { COUNTRIES, NEIGHBORS, getCountry, extractFlag } from "@/lib/countries";
 
 type GameType = "chess" | "xo" | "ludo";
 
@@ -20,9 +18,6 @@ const GAME_META: Record<GameType, { icon: typeof Crown; color: string }> = {
   ludo: { icon: Dice5, color: "from-blue-900/60 to-indigo-900/60" },
 };
 
-// 15s before AI fallback joins matchmaking
-const AI_FALLBACK_MS = 15_000;
-
 function genCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
@@ -31,15 +26,6 @@ function initialState(game: GameType) {
   if (game === "chess") return { fen: "start", lastMove: null, chat: [] };
   if (game === "xo") return { board: Array(9).fill(null), size: 3, chat: [] };
   return { positions: {}, chat: [] };
-}
-
-function pickAiCountry(playerNickname?: string | null): string {
-  // Try to read player's flag and pick a neighbor; otherwise random.
-  const flag = extractFlag(playerNickname);
-  const player = COUNTRIES.find((c) => c.flag === flag);
-  const neighbors = player ? NEIGHBORS[player.code] : undefined;
-  const pool = neighbors && neighbors.length > 0 ? neighbors : COUNTRIES.map((c) => c.code);
-  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 export default function OnlineLobby() {
