@@ -100,6 +100,14 @@ export default function MatchChat({
     const delay = 1200 + Math.random() * 2500;
     const tid = setTimeout(async () => {
       try {
+        const gameStatus =
+          matchStatus === "finished"
+            ? winner === 0
+              ? "draw"
+              : winner === aiRole
+              ? "ai_won"
+              : "ai_lost"
+            : "ongoing";
         const { data, error } = await sb2.functions.invoke("ai-opponent-chat", {
           body: {
             message: last.text,
@@ -110,6 +118,8 @@ export default function MatchChat({
             aiName: aiName ?? "Player",
             lang: aiLang ?? i18n.language ?? "en",
             playerName: myNickname ?? "Friend",
+            gameType: gameType ?? "chess",
+            gameStatus,
           },
         });
         if (error) {
