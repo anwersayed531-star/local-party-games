@@ -38,8 +38,6 @@ export default function OnlineLobby() {
   const [joinCode, setJoinCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [searching, setSearching] = useState(false);
-  const aiTimerRef = useRef<number | null>(null);
-  const myWaitingMatchRef = useRef<string | null>(null);
 
   if (!game || !["chess", "xo", "ludo"].includes(game)) {
     return <div className="p-8">Invalid game</div>;
@@ -58,13 +56,6 @@ export default function OnlineLobby() {
     // eslint-disable-next-line
   }, [guest, pendingAction]);
 
-  // Cleanup AI timer on unmount
-  useEffect(() => {
-    return () => {
-      if (aiTimerRef.current) window.clearTimeout(aiTimerRef.current);
-    };
-  }, []);
-
   const ensureGuest = (action: "match" | "create" | "join") => {
     if (!guest) {
       setPendingAction(action);
@@ -72,48 +63,6 @@ export default function OnlineLobby() {
       return false;
     }
     return true;
-  };
-
-  // Schedules an AI to join my waiting matchmaking match if no one shows up.
-  const scheduleAiFallback = (matchId: string, playerNickname: string) => {
-    if (aiTimerRef.current) window.clearTimeout(aiTimerRef.current);
-    myWaitingMatchRef.current = matchId;
-    aiTimerRef.current = window.setTimeout(async () => {
-      // Re-check the match is still waiting and still mine
-      const { data } = await supabase
-        .from("matches")
-        .select("id,status,player2_id")
-        .eq("id", matchId)
-        .maybeSingle();
-      if (!data || data.status !== "waiting" || data.player2_id) return;
-
-      const ai = generateAiName(playerNickname);
-      const aiCountryCode = pickAiCountry(playerNickname);
-      const aiFlag = getCountry(aiCountryCode)?.flag ?? "🏳️";
-      // Synthetic AI guest id (uuid). Mark as AI by storing in nickname prefix? Use a known sentinel pattern.
-      // We use a real uuid so it satisfies uuid columns; the "AI" flag is stored in match.state.ai = true.
-      const aiId = crypto.randomUUID();
-      const aiNickname = `${aiFlag} ${ai.name}`.slice(0, 24);
-
-      // Insert a guest row for the AI so leaderboard FK is happy if it ever updates.
-      await supabase.from("guests").insert({ id: aiId, nickname: aiNickname }).select().maybeSingle();
-
-      const { error } = await supabase
-        .from("matches")
-        .update({
-          player2_id: aiId,
-          player2_nickname: aiNickname,
-          status: "active",
-          state: {
-            ...(initialState(game as GameType)),
-            ai: { role: 2, name: ai.name, lang: ai.lang, country: aiCountryCode },
-          },
-        })
-        .eq("id", matchId)
-        .eq("status", "waiting");
-      if (error) return;
-      // Real-time channel on the match page will pick up the change automatically.
-    }, AI_FALLBACK_MS) as unknown as number;
   };
 
   const doMatchmaking = async () => {
