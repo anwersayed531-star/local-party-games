@@ -419,17 +419,6 @@ export default function OnlineMatch() {
                 </button>
               </div>
             )}
-            {match.mode === "matchmaking" && match.player1_id === guest?.id && (
-              <div className="mt-4">
-                <Button
-                  onClick={() => joinAiOpponent(match)}
-                  variant="outline"
-                  className="border-gold/60 text-gold hover:bg-gold/10"
-                >
-                  {t("online.playVsAi")}
-                </Button>
-              </div>
-            )}
           </Card>
         )}
 
