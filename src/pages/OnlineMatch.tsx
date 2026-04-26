@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Copy, Loader2, Crown } from "lucide-react";
+import { ArrowLeft, Copy, Loader2, Crown, RotateCw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Chess } from "chess.js";
@@ -12,8 +12,25 @@ import MatchChat, { type ChatMessage } from "@/components/MatchChat";
 import { findBestMove } from "@/lib/chessAI";
 import { extractFlag, stripFlag, COUNTRIES, NEIGHBORS, getCountry } from "@/lib/countries";
 import { generateAiName } from "@/lib/aiNames";
+import { SUPPORTED_LANGS, type Lang } from "@/i18n/config";
 
 const AI_FALLBACK_MS = 15_000;
+const REMATCH_TTL_MS = 60_000; // 1 minute window for the other side to accept
+
+// Detect the player's preferred language: app i18n setting > browser language > 'en'.
+function detectPreferredLang(currentI18nLang?: string): Lang {
+  const candidates: string[] = [];
+  if (currentI18nLang) candidates.push(currentI18nLang);
+  if (typeof navigator !== "undefined") {
+    if (navigator.language) candidates.push(navigator.language);
+    if (Array.isArray(navigator.languages)) candidates.push(...navigator.languages);
+  }
+  for (const c of candidates) {
+    const short = c.slice(0, 2).toLowerCase();
+    if ((SUPPORTED_LANGS as readonly string[]).includes(short)) return short as Lang;
+  }
+  return "en";
+}
 
 function pickAiCountry(playerNickname?: string | null): string {
   const flag = extractFlag(playerNickname);
