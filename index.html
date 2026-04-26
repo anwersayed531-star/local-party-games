@@ -2,40 +2,60 @@
 <html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
     <meta name="theme-color" content="#3b2412" />
     <title>Game Hub - Chess, Ludo &amp; Tic Tac Toe</title>
-    <meta name="description" content="Classic Game Hub: play Chess, Ludo and Tic Tac Toe (XO) offline, against AI or with a friend. Available in English, Arabic, French and German.">
+    <meta name="description" content="Classic Game Hub: play Chess, Ludo and Tic Tac Toe (XO) online or offline, against AI or with a friend. Available in English, Arabic, French and German." />
     <meta name="author" content="Game Hub" />
 
-    
-    
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="./icon.png">
+    <meta property="og:title" content="Game Hub - Chess, Ludo &amp; Tic Tac Toe" />
+    <meta property="og:description" content="Play Chess, Ludo and Tic Tac Toe online or offline, vs AI or a friend." />
+    <meta property="og:image" content="./og-image.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="./icon.png">
+    <meta name="twitter:title" content="Game Hub - Chess, Ludo &amp; Tic Tac Toe" />
+    <meta name="twitter:description" content="Play Chess, Ludo and Tic Tac Toe online or offline, vs AI or a friend." />
+    <meta name="twitter:image" content="./og-image.png" />
 
-    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="canonical" href="https://local-party-games.lovable.app/" />
 
     <!--
       ============================================================
-      ADS SDK PLACEHOLDER
-      Replace ONE of the lines below with the real SDK script
-      provided by the platform AFTER your game is accepted.
+      ADS SDK — auto-detected by URL parameter or build env
       ============================================================
-      Poki:
-      <script src="https://game-cdn.poki.com/scripts/v2/poki-sdk.js"></script>
-
-      CrazyGames:
-      <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
+      Usage:
+        - Default build: NO ads SDK loaded (safe for itch.io / GameMonetize HTML5).
+        - Poki build:    add  ?sdk=poki        (or rename index-poki.html)
+        - CrazyGames:    add  ?sdk=crazygames  (or rename index-crazygames.html)
+        - GameMonetize:  add  ?sdk=gm
+      The script below loads the right SDK before the app starts so
+      adsSDK.ts can detect window.PokiSDK / window.CrazyGames / window.sdk.
       ============================================================
     -->
-    <meta property="og:title" content="Game Hub - Chess, Ludo &amp; Tic Tac Toe">
-  <meta name="twitter:title" content="Game Hub - Chess, Ludo &amp; Tic Tac Toe">
-  <meta property="og:description" content="Classic Game Hub: play Chess, Ludo and Tic Tac Toe (XO) offline, against AI or with a friend. Available in English, Arabic, French and German.">
-  <meta name="twitter:description" content="Classic Game Hub: play Chess, Ludo and Tic Tac Toe (XO) offline, against AI or with a friend. Available in English, Arabic, French and German.">
-</head>
+    <script>
+      (function () {
+        try {
+          var p = new URLSearchParams(location.search);
+          var sdk = p.get("sdk") || (window.__ADS_PROVIDER__ || "");
+          var src = null;
+          if (sdk === "poki")          src = "https://game-cdn.poki.com/scripts/v2/poki-sdk.js";
+          else if (sdk === "crazygames") src = "https://sdk.crazygames.com/crazygames-sdk-v3.js";
+          else if (sdk === "gm")       src = "https://api.gamemonetize.com/sdk.js";
+          if (src) {
+            var s = document.createElement("script");
+            s.src = src;
+            s.async = false;
+            document.head.appendChild(s);
+          }
+        } catch (e) { /* ignore */ }
+      })();
+    </script>
+  </head>
 
   <body>
     <div id="root"></div>
