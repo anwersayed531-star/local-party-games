@@ -46,11 +46,14 @@ function pool(lang: "ar" | "en" | "fr" | "de"): string[] {
   }
 }
 
-// Pick a fake name in the same language family, that doesn't equal the player's name.
-export function generateAiName(playerNickname: string): { name: string; lang: "ar" | "en" | "fr" | "de" } {
+// Pick a fake name in a specified language family (or auto-detect from nickname).
+export function generateAiName(
+  playerNickname: string,
+  forceLang?: "ar" | "en" | "fr" | "de"
+): { name: string; lang: "ar" | "en" | "fr" | "de" } {
   // Strip leading flag if present
   const clean = playerNickname.replace(/^(\p{RI}\p{RI})\s*/u, "").trim();
-  const lang = detectLang(clean);
+  const lang = forceLang ?? detectLang(clean);
   const list = pool(lang);
   let pick = list[Math.floor(Math.random() * list.length)];
   let attempts = 0;
