@@ -603,7 +603,7 @@ export default function OnlineMatch() {
           </Card>
         )}
 
-        {/* Finished banner */}
+        {/* Finished banner + Rematch UI */}
         {isFinished && (
           <Card className="p-4 mb-4 text-center bg-gradient-to-r from-amber-900/40 to-amber-700/40 border-gold">
             <Crown className="w-8 h-8 mx-auto text-gold mb-2" />
@@ -613,6 +613,81 @@ export default function OnlineMatch() {
                   {match.winner === myRole ? t("online.youWon") : (myRole === 0 ? t("online.matchEnded") : t("online.youLost"))}
                 </p>
             }
+
+            {myRole !== 0 && (
+              <div className="mt-4">
+                {/* No active rematch yet → show request button */}
+                {(!rematch || rematch.declined) && !newMatchId && (
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                    <Button onClick={requestRematch} className="bg-gold text-background hover:bg-gold/90 font-bold">
+                      <RotateCw className="w-4 h-4 mr-1" />
+                      {t("online.rematch")}
+                    </Button>
+                    <Button variant="outline" onClick={() => navigate("/")} className="border-gold/50">
+                      {t("online.exit")}
+                    </Button>
+                    {rematch?.declined && (
+                      <p className="text-xs text-muted-foreground self-center mt-2 sm:mt-0 sm:ml-2">
+                        {t("online.rematchDeclined")}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* I requested → waiting for opponent */}
+                {rematch && !rematch.declined && !newMatchId && rematch.from === myRole && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-center gap-2 text-sm">
+                      <Loader2 className="w-4 h-4 animate-spin text-gold" />
+                      <span>{t("online.rematchSent")}</span>
+                      <span className="text-xs text-muted-foreground">
+                        ({Math.max(0, Math.ceil((rematch.expiresAt - Date.now()) / 1000))}s)
+                      </span>
+                    </div>
+                    {opponentIsAi ? null : (
+                      <p className="text-xs text-muted-foreground">
+                        {t("online.rematchOpponentLeft")}
+                      </p>
+                    )}
+                    <Button size="sm" variant="outline" onClick={cancelRematch} className="border-gold/40">
+                      <X className="w-3 h-3 mr-1" />
+                      {t("online.rematchCancel")}
+                    </Button>
+                  </div>
+                )}
+
+                {/* Opponent requested → I accept/decline */}
+                {rematch && !rematch.declined && !newMatchId && rematch.from !== myRole && (
+                  <div className="space-y-3 bg-background/40 p-3 rounded-lg border border-gold/30">
+                    <p className="font-bold text-foreground">
+                      {t("online.rematchIncoming", {
+                        name: stripFlag(rematch.from === 1 ? match.player1_nickname : match.player2_nickname) || t("common.player"),
+                      })}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {Math.max(0, Math.ceil((rematch.expiresAt - Date.now()) / 1000))}s
+                    </p>
+                    <div className="flex gap-2 justify-center">
+                      <Button onClick={acceptRematch} className="bg-gold text-background hover:bg-gold/90 font-bold">
+                        <RotateCw className="w-4 h-4 mr-1" />
+                        {t("online.rematchAccept")}
+                      </Button>
+                      <Button variant="outline" onClick={declineRematch} className="border-gold/40">
+                        {t("online.rematchDecline")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* New match created → redirecting */}
+                {newMatchId && (
+                  <div className="flex items-center justify-center gap-2 text-sm">
+                    <Loader2 className="w-4 h-4 animate-spin text-gold" />
+                    <span>{t("online.rematchAccepted")}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </Card>
         )}
 
