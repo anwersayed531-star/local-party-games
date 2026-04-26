@@ -119,7 +119,19 @@
     "opponentTurn": "Opponent's turn...",
     "searchingOpponent": "Searching for an opponent...",
     "ludoOnlineSoon": "Online Ludo coming soon — try Chess or XO online now",
-    "playVsAi": "Play now vs AI"
+    "playVsAi": "Play now vs AI",
+    "rematch": "Rematch",
+    "rematchRequest": "Rematch request",
+    "rematchSent": "Request sent, waiting for opponent...",
+    "rematchIncoming": "{{name}} wants a rematch",
+    "rematchAccept": "Accept",
+    "rematchDecline": "Decline",
+    "rematchAccepted": "Accepted! Starting new match...",
+    "rematchDeclined": "Opponent declined the rematch",
+    "rematchExpired": "Request expired",
+    "rematchCancel": "Cancel request",
+    "rematchOpponentLeft": "Opponent left — they'll see it if they come back",
+    "exit": "Exit"
   },
   "auth": {
     "title": "Your Account",
