@@ -65,7 +65,7 @@ const PIECE_UNICODE: Record<string, string> = {
 export default function OnlineMatch() {
   const { game, matchId } = useParams<{ game: GameType; matchId: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { guest } = useGuest();
   const [match, setMatch] = useState<MatchRow | null>(null);
   const [loading, setLoading] = useState(true);
