@@ -155,7 +155,9 @@ export default function OnlineMatch() {
     if (aiJoinTriggered.current) return;
     aiJoinTriggered.current = true;
 
-    const ai = generateAiName(m.player1_nickname ?? guest.nickname);
+    const playerLang = detectPreferredLang(i18n.language);
+    // Generate name in the player's language so the AI feels regional/native to them.
+    const ai = generateAiName(m.player1_nickname ?? guest.nickname, playerLang);
     const aiCountryCode = pickAiCountry(m.player1_nickname);
     const aiFlag = getCountry(aiCountryCode)?.flag ?? "🏳️";
     const aiId = crypto.randomUUID();
@@ -174,7 +176,7 @@ export default function OnlineMatch() {
         status: "active",
         state: {
           ...baseState,
-          ai: { role: 2, name: ai.name, lang: ai.lang, country: aiCountryCode },
+          ai: { role: 2, name: ai.name, lang: playerLang, country: aiCountryCode, playerLang },
         },
       })
       .eq("id", m.id)
