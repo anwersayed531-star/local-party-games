@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Copy, Loader2, Crown } from "lucide-react";
+import { ArrowLeft, Copy, Loader2, Crown, RotateCw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Chess } from "chess.js";
@@ -12,8 +12,25 @@ import MatchChat, { type ChatMessage } from "@/components/MatchChat";
 import { findBestMove } from "@/lib/chessAI";
 import { extractFlag, stripFlag, COUNTRIES, NEIGHBORS, getCountry } from "@/lib/countries";
 import { generateAiName } from "@/lib/aiNames";
+import { SUPPORTED_LANGS, type Lang } from "@/i18n/config";
 
 const AI_FALLBACK_MS = 15_000;
+const REMATCH_TTL_MS = 60_000; // 1 minute window for the other side to accept
+
+// Detect the player's preferred language: app i18n setting > browser language > 'en'.
+function detectPreferredLang(currentI18nLang?: string): Lang {
+  const candidates: string[] = [];
+  if (currentI18nLang) candidates.push(currentI18nLang);
+  if (typeof navigator !== "undefined") {
+    if (navigator.language) candidates.push(navigator.language);
+    if (Array.isArray(navigator.languages)) candidates.push(...navigator.languages);
+  }
+  for (const c of candidates) {
+    const short = c.slice(0, 2).toLowerCase();
+    if ((SUPPORTED_LANGS as readonly string[]).includes(short)) return short as Lang;
+  }
+  return "en";
+}
 
 function pickAiCountry(playerNickname?: string | null): string {
   const flag = extractFlag(playerNickname);
@@ -48,7 +65,7 @@ const PIECE_UNICODE: Record<string, string> = {
 export default function OnlineMatch() {
   const { game, matchId } = useParams<{ game: GameType; matchId: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { guest } = useGuest();
   const [match, setMatch] = useState<MatchRow | null>(null);
   const [loading, setLoading] = useState(true);
@@ -138,7 +155,9 @@ export default function OnlineMatch() {
     if (aiJoinTriggered.current) return;
     aiJoinTriggered.current = true;
 
-    const ai = generateAiName(m.player1_nickname ?? guest.nickname);
+    const playerLang = detectPreferredLang(i18n.language);
+    // Generate name in the player's language so the AI feels regional/native to them.
+    const ai = generateAiName(m.player1_nickname ?? guest.nickname, playerLang);
     const aiCountryCode = pickAiCountry(m.player1_nickname);
     const aiFlag = getCountry(aiCountryCode)?.flag ?? "🏳️";
     const aiId = crypto.randomUUID();
@@ -157,7 +176,7 @@ export default function OnlineMatch() {
         status: "active",
         state: {
           ...baseState,
-          ai: { role: 2, name: ai.name, lang: ai.lang, country: aiCountryCode },
+          ai: { role: 2, name: ai.name, lang: playerLang, country: aiCountryCode, playerLang },
         },
       })
       .eq("id", m.id)
@@ -178,6 +197,168 @@ export default function OnlineMatch() {
     return () => window.clearTimeout(tid);
     // eslint-disable-next-line
   }, [match?.id, match?.status, match?.player2_id, guest?.id]);
+
+  // ============ REMATCH ============
+  type RematchState = {
+    from: 1 | 2;
+    ts: number;
+    expiresAt: number;
+    declined?: boolean;
+    newMatchId?: string;
+  };
+  const rematch: RematchState | null = match?.state?.rematch ?? null;
+  const newMatchId: string | null = match?.state?.rematch?.newMatchId ?? null;
+
+  // Auto-redirect both players when a rematch match has been created.
+  useEffect(() => {
+    if (!newMatchId || !match) return;
+    if (myRole === 0) return;
+    const tid = window.setTimeout(() => {
+      navigate(`/online/${match.game}/${newMatchId}`, { replace: true });
+    }, 600);
+    return () => window.clearTimeout(tid);
+  }, [newMatchId, match?.game, myRole, navigate]);
+
+  // Tick every second so countdown updates
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!rematch || rematch.declined || rematch.newMatchId) return;
+    const id = window.setInterval(() => setTick((n) => n + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [rematch?.ts, rematch?.declined, rematch?.newMatchId]);
+
+  const requestRematch = async () => {
+    if (!match || !guest || myRole === 0) return;
+    if (match.status !== "finished") return;
+    const now = Date.now();
+    const next: RematchState = { from: myRole as 1 | 2, ts: now, expiresAt: now + REMATCH_TTL_MS };
+    await supabase
+      .from("matches")
+      .update({ state: { ...(match.state ?? {}), rematch: next } })
+      .eq("id", match.id);
+    toast.success(t("online.rematchSent"));
+  };
+
+  const cancelRematch = async () => {
+    if (!match) return;
+    const { rematch: _r, ...rest } = match.state ?? {};
+    await supabase.from("matches").update({ state: rest }).eq("id", match.id);
+  };
+
+  const declineRematch = async () => {
+    if (!match || !rematch) return;
+    await supabase
+      .from("matches")
+      .update({ state: { ...(match.state ?? {}), rematch: { ...rematch, declined: true } } })
+      .eq("id", match.id);
+  };
+
+  const acceptRematch = async () => {
+    if (!match || !rematch || !guest || myRole === 0) return;
+    if (rematch.from === myRole) return;
+    if (rematch.newMatchId) return;
+    const aiMeta = match.state?.ai ?? null;
+    let freshState: any;
+    if (match.game === "chess") freshState = { fen: "start", lastMove: null, chat: [] };
+    else if (match.game === "xo") freshState = { board: Array(9).fill(null), size: 3, chat: [] };
+    else freshState = { positions: {}, chat: [] };
+    if (aiMeta) freshState.ai = aiMeta;
+    const firstTurn: number = match.winner === 0 || match.winner === null
+      ? (match.current_turn === 1 ? 2 : 1)
+      : (match.winner === 1 ? 2 : 1);
+    const { data: created, error } = await supabase
+      .from("matches")
+      .insert({
+        game: match.game,
+        mode: match.mode as any,
+        status: "active",
+        player1_id: match.player1_id,
+        player2_id: match.player2_id,
+        player1_nickname: match.player1_nickname,
+        player2_nickname: match.player2_nickname,
+        current_turn: firstTurn,
+        state: freshState,
+      })
+      .select()
+      .maybeSingle();
+    if (error || !created) {
+      console.error("[OnlineMatch] rematch insert failed", error);
+      toast.error(t("online.matchError"));
+      return;
+    }
+    await supabase
+      .from("matches")
+      .update({ state: { ...(match.state ?? {}), rematch: { ...rematch, newMatchId: created.id } } })
+      .eq("id", match.id);
+    toast.success(t("online.rematchAccepted"));
+  };
+
+  // AI auto-accepts rematches with a 2-4s delay.
+  const aiRematchHandled = useRef<string>("");
+  useEffect(() => {
+    if (!match || !opponentIsAi || !aiInfo || !rematch) return;
+    if (rematch.declined || rematch.newMatchId) return;
+    if (rematch.from === aiInfo.role) return;
+    if (myRole !== rematch.from) return; // only requesting client drives AI accept
+    const key = `${match.id}:${rematch.ts}`;
+    if (aiRematchHandled.current === key) return;
+    aiRematchHandled.current = key;
+    const delay = 2000 + Math.random() * 2000;
+    const tid = window.setTimeout(async () => {
+      const { data: fresh } = await supabase
+        .from("matches")
+        .select("state, current_turn, winner, mode, player1_id, player2_id, player1_nickname, player2_nickname")
+        .eq("id", match.id)
+        .maybeSingle();
+      const r = fresh?.state?.rematch;
+      if (!r || r.declined || r.newMatchId) return;
+      const aiMeta = fresh?.state?.ai ?? null;
+      let freshState: any;
+      if (match.game === "chess") freshState = { fen: "start", lastMove: null, chat: [] };
+      else if (match.game === "xo") freshState = { board: Array(9).fill(null), size: 3, chat: [] };
+      else freshState = { positions: {}, chat: [] };
+      if (aiMeta) freshState.ai = aiMeta;
+      const firstTurn: number = (fresh?.winner ?? null) === 0 || fresh?.winner == null
+        ? ((fresh?.current_turn ?? 1) === 1 ? 2 : 1)
+        : (fresh!.winner === 1 ? 2 : 1);
+      const { data: created, error } = await supabase
+        .from("matches")
+        .insert({
+          game: match.game,
+          mode: (fresh?.mode ?? match.mode) as any,
+          status: "active",
+          player1_id: fresh?.player1_id ?? match.player1_id,
+          player2_id: fresh?.player2_id ?? match.player2_id,
+          player1_nickname: fresh?.player1_nickname ?? match.player1_nickname,
+          player2_nickname: fresh?.player2_nickname ?? match.player2_nickname,
+          current_turn: firstTurn,
+          state: freshState,
+        })
+        .select()
+        .maybeSingle();
+      if (error || !created) {
+        console.error("[OnlineMatch] AI rematch failed", error);
+        return;
+      }
+      await supabase
+        .from("matches")
+        .update({ state: { ...(fresh?.state ?? {}), rematch: { ...r, newMatchId: created.id } } })
+        .eq("id", match.id);
+    }, delay);
+    return () => window.clearTimeout(tid);
+    // eslint-disable-next-line
+  }, [match?.id, rematch?.ts, rematch?.declined, rematch?.newMatchId, opponentIsAi, aiInfo?.role, myRole]);
+
+  // Auto-expire pending rematch after TTL
+  useEffect(() => {
+    if (!match || !rematch) return;
+    if (rematch.declined || rematch.newMatchId) return;
+    const remain = rematch.expiresAt - Date.now();
+    if (remain <= 0) { void declineRematch(); return; }
+    const tid = window.setTimeout(() => { void declineRematch(); }, remain + 200);
+    return () => window.clearTimeout(tid);
+    // eslint-disable-next-line
+  }, [match?.id, rematch?.ts, rematch?.expiresAt, rematch?.declined, rematch?.newMatchId]);
 
   // ============ AI MOVE EXECUTOR ============
   // When opponent is AI and it's their turn, the human player's client triggers the AI move.
@@ -422,7 +603,7 @@ export default function OnlineMatch() {
           </Card>
         )}
 
-        {/* Finished banner */}
+        {/* Finished banner + Rematch UI */}
         {isFinished && (
           <Card className="p-4 mb-4 text-center bg-gradient-to-r from-amber-900/40 to-amber-700/40 border-gold">
             <Crown className="w-8 h-8 mx-auto text-gold mb-2" />
@@ -432,6 +613,81 @@ export default function OnlineMatch() {
                   {match.winner === myRole ? t("online.youWon") : (myRole === 0 ? t("online.matchEnded") : t("online.youLost"))}
                 </p>
             }
+
+            {myRole !== 0 && (
+              <div className="mt-4">
+                {/* No active rematch yet → show request button */}
+                {(!rematch || rematch.declined) && !newMatchId && (
+                  <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                    <Button onClick={requestRematch} className="bg-gold text-background hover:bg-gold/90 font-bold">
+                      <RotateCw className="w-4 h-4 mr-1" />
+                      {t("online.rematch")}
+                    </Button>
+                    <Button variant="outline" onClick={() => navigate("/")} className="border-gold/50">
+                      {t("online.exit")}
+                    </Button>
+                    {rematch?.declined && (
+                      <p className="text-xs text-muted-foreground self-center mt-2 sm:mt-0 sm:ml-2">
+                        {t("online.rematchDeclined")}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* I requested → waiting for opponent */}
+                {rematch && !rematch.declined && !newMatchId && rematch.from === myRole && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-center gap-2 text-sm">
+                      <Loader2 className="w-4 h-4 animate-spin text-gold" />
+                      <span>{t("online.rematchSent")}</span>
+                      <span className="text-xs text-muted-foreground">
+                        ({Math.max(0, Math.ceil((rematch.expiresAt - Date.now()) / 1000))}s)
+                      </span>
+                    </div>
+                    {opponentIsAi ? null : (
+                      <p className="text-xs text-muted-foreground">
+                        {t("online.rematchOpponentLeft")}
+                      </p>
+                    )}
+                    <Button size="sm" variant="outline" onClick={cancelRematch} className="border-gold/40">
+                      <X className="w-3 h-3 mr-1" />
+                      {t("online.rematchCancel")}
+                    </Button>
+                  </div>
+                )}
+
+                {/* Opponent requested → I accept/decline */}
+                {rematch && !rematch.declined && !newMatchId && rematch.from !== myRole && (
+                  <div className="space-y-3 bg-background/40 p-3 rounded-lg border border-gold/30">
+                    <p className="font-bold text-foreground">
+                      {t("online.rematchIncoming", {
+                        name: stripFlag(rematch.from === 1 ? match.player1_nickname : match.player2_nickname) || t("common.player"),
+                      })}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {Math.max(0, Math.ceil((rematch.expiresAt - Date.now()) / 1000))}s
+                    </p>
+                    <div className="flex gap-2 justify-center">
+                      <Button onClick={acceptRematch} className="bg-gold text-background hover:bg-gold/90 font-bold">
+                        <RotateCw className="w-4 h-4 mr-1" />
+                        {t("online.rematchAccept")}
+                      </Button>
+                      <Button variant="outline" onClick={declineRematch} className="border-gold/40">
+                        {t("online.rematchDecline")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* New match created → redirecting */}
+                {newMatchId && (
+                  <div className="flex items-center justify-center gap-2 text-sm">
+                    <Loader2 className="w-4 h-4 animate-spin text-gold" />
+                    <span>{t("online.rematchAccepted")}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </Card>
         )}
 

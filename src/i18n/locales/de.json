@@ -119,7 +119,19 @@
     "opponentTurn": "Gegner ist dran...",
     "searchingOpponent": "Suche einen Gegner...",
     "ludoOnlineSoon": "Ludo online bald — spiele jetzt Schach oder XO",
-    "playVsAi": "Jetzt gegen KI spielen"
+    "playVsAi": "Jetzt gegen KI spielen",
+    "rematch": "Revanche",
+    "rematchRequest": "Revanche-Anfrage",
+    "rematchSent": "Anfrage gesendet, warte auf den Gegner...",
+    "rematchIncoming": "{{name}} möchte eine Revanche",
+    "rematchAccept": "Annehmen",
+    "rematchDecline": "Ablehnen",
+    "rematchAccepted": "Angenommen! Neues Spiel startet...",
+    "rematchDeclined": "Gegner hat abgelehnt",
+    "rematchExpired": "Anfrage abgelaufen",
+    "rematchCancel": "Abbrechen",
+    "rematchOpponentLeft": "Gegner ist weg — er sieht die Anfrage bei Rückkehr",
+    "exit": "Verlassen"
   },
   "auth": {
     "title": "Dein Konto",
