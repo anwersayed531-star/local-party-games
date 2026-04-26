@@ -119,7 +119,19 @@
     "opponentTurn": "Tour de l'adversaire...",
     "searchingOpponent": "Recherche d'un adversaire...",
     "ludoOnlineSoon": "Ludo en ligne bientôt — essayez Échecs ou XO",
-    "playVsAi": "Jouer maintenant contre IA"
+    "playVsAi": "Jouer maintenant contre IA",
+    "rematch": "Revanche",
+    "rematchRequest": "Demande de revanche",
+    "rematchSent": "Demande envoyée, en attente de l'adversaire...",
+    "rematchIncoming": "{{name}} demande une revanche",
+    "rematchAccept": "Accepter",
+    "rematchDecline": "Refuser",
+    "rematchAccepted": "Accepté ! Lancement de la partie...",
+    "rematchDeclined": "L'adversaire a refusé",
+    "rematchExpired": "Demande expirée",
+    "rematchCancel": "Annuler",
+    "rematchOpponentLeft": "L'adversaire est parti — il verra la demande à son retour",
+    "exit": "Quitter"
   },
   "auth": {
     "title": "Votre compte",
