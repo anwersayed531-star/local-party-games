@@ -119,7 +119,19 @@
     "opponentTurn": "دور الخصم...",
     "searchingOpponent": "جاري البحث عن خصم...",
     "ludoOnlineSoon": "لودو أونلاين قريباً — العب الشطرنج وXO الآن",
-    "playVsAi": "العب الآن ضد لاعب افتراضي"
+    "playVsAi": "العب الآن ضد لاعب افتراضي",
+    "rematch": "مباراة جديدة",
+    "rematchRequest": "طلب مباراة جديدة",
+    "rematchSent": "تم إرسال الطلب، بانتظار رد الخصم...",
+    "rematchIncoming": "{{name}} يطلب مباراة جديدة",
+    "rematchAccept": "موافق",
+    "rematchDecline": "رفض",
+    "rematchAccepted": "تم القبول! جاري بدء المباراة...",
+    "rematchDeclined": "رفض الخصم المباراة",
+    "rematchExpired": "انتهت مهلة الطلب",
+    "rematchCancel": "إلغاء الطلب",
+    "rematchOpponentLeft": "الخصم خرج — سيستلم الطلب لو رجع",
+    "exit": "خروج"
   },
   "auth": {
     "title": "حسابك",
