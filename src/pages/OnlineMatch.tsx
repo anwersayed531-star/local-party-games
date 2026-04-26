@@ -198,6 +198,168 @@ export default function OnlineMatch() {
     // eslint-disable-next-line
   }, [match?.id, match?.status, match?.player2_id, guest?.id]);
 
+  // ============ REMATCH ============
+  type RematchState = {
+    from: 1 | 2;
+    ts: number;
+    expiresAt: number;
+    declined?: boolean;
+    newMatchId?: string;
+  };
+  const rematch: RematchState | null = match?.state?.rematch ?? null;
+  const newMatchId: string | null = match?.state?.rematch?.newMatchId ?? null;
+
+  // Auto-redirect both players when a rematch match has been created.
+  useEffect(() => {
+    if (!newMatchId || !match) return;
+    if (myRole === 0) return;
+    const tid = window.setTimeout(() => {
+      navigate(`/online/${match.game}/${newMatchId}`, { replace: true });
+    }, 600);
+    return () => window.clearTimeout(tid);
+  }, [newMatchId, match?.game, myRole, navigate]);
+
+  // Tick every second so countdown updates
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    if (!rematch || rematch.declined || rematch.newMatchId) return;
+    const id = window.setInterval(() => setTick((n) => n + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [rematch?.ts, rematch?.declined, rematch?.newMatchId]);
+
+  const requestRematch = async () => {
+    if (!match || !guest || myRole === 0) return;
+    if (match.status !== "finished") return;
+    const now = Date.now();
+    const next: RematchState = { from: myRole as 1 | 2, ts: now, expiresAt: now + REMATCH_TTL_MS };
+    await supabase
+      .from("matches")
+      .update({ state: { ...(match.state ?? {}), rematch: next } })
+      .eq("id", match.id);
+    toast.success(t("online.rematchSent"));
+  };
+
+  const cancelRematch = async () => {
+    if (!match) return;
+    const { rematch: _r, ...rest } = match.state ?? {};
+    await supabase.from("matches").update({ state: rest }).eq("id", match.id);
+  };
+
+  const declineRematch = async () => {
+    if (!match || !rematch) return;
+    await supabase
+      .from("matches")
+      .update({ state: { ...(match.state ?? {}), rematch: { ...rematch, declined: true } } })
+      .eq("id", match.id);
+  };
+
+  const acceptRematch = async () => {
+    if (!match || !rematch || !guest || myRole === 0) return;
+    if (rematch.from === myRole) return;
+    if (rematch.newMatchId) return;
+    const aiMeta = match.state?.ai ?? null;
+    let freshState: any;
+    if (match.game === "chess") freshState = { fen: "start", lastMove: null, chat: [] };
+    else if (match.game === "xo") freshState = { board: Array(9).fill(null), size: 3, chat: [] };
+    else freshState = { positions: {}, chat: [] };
+    if (aiMeta) freshState.ai = aiMeta;
+    const firstTurn: number = match.winner === 0 || match.winner === null
+      ? (match.current_turn === 1 ? 2 : 1)
+      : (match.winner === 1 ? 2 : 1);
+    const { data: created, error } = await supabase
+      .from("matches")
+      .insert({
+        game: match.game,
+        mode: match.mode as any,
+        status: "active",
+        player1_id: match.player1_id,
+        player2_id: match.player2_id,
+        player1_nickname: match.player1_nickname,
+        player2_nickname: match.player2_nickname,
+        current_turn: firstTurn,
+        state: freshState,
+      })
+      .select()
+      .maybeSingle();
+    if (error || !created) {
+      console.error("[OnlineMatch] rematch insert failed", error);
+      toast.error(t("online.matchError"));
+      return;
+    }
+    await supabase
+      .from("matches")
+      .update({ state: { ...(match.state ?? {}), rematch: { ...rematch, newMatchId: created.id } } })
+      .eq("id", match.id);
+    toast.success(t("online.rematchAccepted"));
+  };
+
+  // AI auto-accepts rematches with a 2-4s delay.
+  const aiRematchHandled = useRef<string>("");
+  useEffect(() => {
+    if (!match || !opponentIsAi || !aiInfo || !rematch) return;
+    if (rematch.declined || rematch.newMatchId) return;
+    if (rematch.from === aiInfo.role) return;
+    if (myRole !== rematch.from) return; // only requesting client drives AI accept
+    const key = `${match.id}:${rematch.ts}`;
+    if (aiRematchHandled.current === key) return;
+    aiRematchHandled.current = key;
+    const delay = 2000 + Math.random() * 2000;
+    const tid = window.setTimeout(async () => {
+      const { data: fresh } = await supabase
+        .from("matches")
+        .select("state, current_turn, winner, mode, player1_id, player2_id, player1_nickname, player2_nickname")
+        .eq("id", match.id)
+        .maybeSingle();
+      const r = fresh?.state?.rematch;
+      if (!r || r.declined || r.newMatchId) return;
+      const aiMeta = fresh?.state?.ai ?? null;
+      let freshState: any;
+      if (match.game === "chess") freshState = { fen: "start", lastMove: null, chat: [] };
+      else if (match.game === "xo") freshState = { board: Array(9).fill(null), size: 3, chat: [] };
+      else freshState = { positions: {}, chat: [] };
+      if (aiMeta) freshState.ai = aiMeta;
+      const firstTurn: number = (fresh?.winner ?? null) === 0 || fresh?.winner == null
+        ? ((fresh?.current_turn ?? 1) === 1 ? 2 : 1)
+        : (fresh!.winner === 1 ? 2 : 1);
+      const { data: created, error } = await supabase
+        .from("matches")
+        .insert({
+          game: match.game,
+          mode: (fresh?.mode ?? match.mode) as any,
+          status: "active",
+          player1_id: fresh?.player1_id ?? match.player1_id,
+          player2_id: fresh?.player2_id ?? match.player2_id,
+          player1_nickname: fresh?.player1_nickname ?? match.player1_nickname,
+          player2_nickname: fresh?.player2_nickname ?? match.player2_nickname,
+          current_turn: firstTurn,
+          state: freshState,
+        })
+        .select()
+        .maybeSingle();
+      if (error || !created) {
+        console.error("[OnlineMatch] AI rematch failed", error);
+        return;
+      }
+      await supabase
+        .from("matches")
+        .update({ state: { ...(fresh?.state ?? {}), rematch: { ...r, newMatchId: created.id } } })
+        .eq("id", match.id);
+    }, delay);
+    return () => window.clearTimeout(tid);
+    // eslint-disable-next-line
+  }, [match?.id, rematch?.ts, rematch?.declined, rematch?.newMatchId, opponentIsAi, aiInfo?.role, myRole]);
+
+  // Auto-expire pending rematch after TTL
+  useEffect(() => {
+    if (!match || !rematch) return;
+    if (rematch.declined || rematch.newMatchId) return;
+    const remain = rematch.expiresAt - Date.now();
+    if (remain <= 0) { void declineRematch(); return; }
+    const tid = window.setTimeout(() => { void declineRematch(); }, remain + 200);
+    return () => window.clearTimeout(tid);
+    // eslint-disable-next-line
+  }, [match?.id, rematch?.ts, rematch?.expiresAt, rematch?.declined, rematch?.newMatchId]);
+
   // ============ AI MOVE EXECUTOR ============
   // When opponent is AI and it's their turn, the human player's client triggers the AI move.
   useEffect(() => {
