@@ -701,6 +701,7 @@ export default function OnlineMatch() {
             myRole={myRole}
             onSquare={handleChessSquare}
             disabled={!myTurn}
+            lastMove={match.state?.lastMove ?? null}
           />
         )}
         {match.game === "xo" && (
