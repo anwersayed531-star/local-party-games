@@ -1,0 +1,108 @@
+name: Build Game Hub for Web Portals
+
+# يشتغل تلقائي مع كل push على main، أو يدوياً من تبويب Actions على GitHub
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build project
+        run: bun run build
+
+      # ====== تجهيز نسخة لكل منصة ======
+      # كل منصة بتحتاج index.html بيحمّل الـ SDK الصح
+      - name: Prepare platform builds
+        run: |
+          set -e
+          mkdir -p out
+
+          # نسخة عامة (itch.io / بدون إعلانات)
+          cp -r dist out/itch
+          (cd out/itch && zip -r ../game-hub-itch.zip .)
+
+          # نسخة Poki
+          cp -r dist out/poki
+          sed -i 's|var sdk = p.get("sdk") \|\| (window.__ADS_PROVIDER__ \|\| "");|var sdk = "poki";|' out/poki/index.html
+          (cd out/poki && zip -r ../game-hub-poki.zip .)
+
+          # نسخة CrazyGames
+          cp -r dist out/crazygames
+          sed -i 's|var sdk = p.get("sdk") \|\| (window.__ADS_PROVIDER__ \|\| "");|var sdk = "crazygames";|' out/crazygames/index.html
+          (cd out/crazygames && zip -r ../game-hub-crazygames.zip .)
+
+          # نسخة GameMonetize
+          cp -r dist out/gamemonetize
+          sed -i 's|var sdk = p.get("sdk") \|\| (window.__ADS_PROVIDER__ \|\| "");|var sdk = "gm";|' out/gamemonetize/index.html
+          (cd out/gamemonetize && zip -r ../game-hub-gamemonetize.zip .)
+
+          ls -lh out/*.zip
+
+      # ====== رفع الملفات على GitHub علشان تحملها من التليفون ======
+      - name: Upload all builds (Artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-hub-all-platforms
+          path: out/*.zip
+          retention-days: 30
+
+      - name: Upload Poki build
+        uses: actions/upload-artifact@v4
+        with:
+          name: poki
+          path: out/game-hub-poki.zip
+
+      - name: Upload CrazyGames build
+        uses: actions/upload-artifact@v4
+        with:
+          name: crazygames
+          path: out/game-hub-crazygames.zip
+
+      - name: Upload GameMonetize build
+        uses: actions/upload-artifact@v4
+        with:
+          name: gamemonetize
+          path: out/game-hub-gamemonetize.zip
+
+      - name: Upload itch.io build
+        uses: actions/upload-artifact@v4
+        with:
+          name: itch
+          path: out/game-hub-itch.zip
+
+      # ====== كمان نعمل Release تلقائي علشان التحميل يبقى أسهل من التليفون ======
+      - name: Create GitHub Release
+        if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: "Game Hub Build #${{ github.run_number }}"
+          body: |
+            🎮 **Game Hub - نسخ جاهزة للرفع على منصات الألعاب**
+
+            حمّل النسخة المناسبة للمنصة:
+            - 🟣 **Poki** → `game-hub-poki.zip`
+            - 🟠 **CrazyGames** → `game-hub-crazygames.zip`
+            - 🟢 **GameMonetize** → `game-hub-gamemonetize.zip`
+            - 🟡 **itch.io** → `game-hub-itch.zip`
+
+            راجع `PORTAL_PUBLISHING.md` لتعليمات كل منصة.
+          files: out/*.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
