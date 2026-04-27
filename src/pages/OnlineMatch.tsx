@@ -134,6 +134,8 @@ export default function OnlineMatch() {
     } catch {
       chessRef.current = new Chess();
     }
+    // Clear stale selection when board updates (e.g., after opponent's move)
+    setSelected(null);
   }, [match]);
 
   // Apply ELO rating after match finishes (fire from player1 only to avoid duplicate)
