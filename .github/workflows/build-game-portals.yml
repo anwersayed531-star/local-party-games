@@ -6,6 +6,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# صلاحيات لازمة علشان الروبوت يقدر يعمل Releases ويرفع الملفات
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
