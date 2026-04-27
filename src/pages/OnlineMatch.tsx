@@ -134,6 +134,8 @@ export default function OnlineMatch() {
     } catch {
       chessRef.current = new Chess();
     }
+    // Clear stale selection when board updates (e.g., after opponent's move)
+    setSelected(null);
   }, [match]);
 
   // Apply ELO rating after match finishes (fire from player1 only to avoid duplicate)
@@ -699,6 +701,7 @@ export default function OnlineMatch() {
             myRole={myRole}
             onSquare={handleChessSquare}
             disabled={!myTurn}
+            lastMove={match.state?.lastMove ?? null}
           />
         )}
         {match.game === "xo" && (
@@ -743,7 +746,7 @@ export default function OnlineMatch() {
 }
 
 // ============== Chess board component ==============
-function ChessBoard({ chess, selected, myRole, onSquare, disabled }: any) {
+function ChessBoard({ chess, selected, myRole, onSquare, disabled, lastMove }: any) {
   const files = ["a","b","c","d","e","f","g","h"];
   const ranks = [8,7,6,5,4,3,2,1];
   // Flip board for player 2 (black)
@@ -753,6 +756,9 @@ function ChessBoard({ chess, selected, myRole, onSquare, disabled }: any) {
   const legalTargets = selected
     ? chess.moves({ square: selected, verbose: true }).map((m: any) => m.to)
     : [];
+
+  const inCheck = chess.inCheck?.() ?? chess.isCheck?.();
+  const turnColor = chess.turn();
 
   return (
     <div className="aspect-square w-full max-w-md mx-auto border-4 border-gold rounded-md overflow-hidden shadow-2xl">
@@ -764,6 +770,9 @@ function ChessBoard({ chess, selected, myRole, onSquare, disabled }: any) {
             const isLight = (files.indexOf(file) + rank) % 2 === 0;
             const isSelected = selected === sq;
             const isTarget = legalTargets.includes(sq);
+            const isLastFrom = lastMove?.from === sq;
+            const isLastTo = lastMove?.to === sq;
+            const isCheckedKing = inCheck && piece?.type === "k" && piece?.color === turnColor;
             return (
               <button
                 key={sq}
@@ -771,20 +780,22 @@ function ChessBoard({ chess, selected, myRole, onSquare, disabled }: any) {
                 disabled={disabled}
                 className={`relative flex items-center justify-center text-3xl sm:text-4xl transition
                   ${isLight ? "bg-amber-100" : "bg-amber-800"}
-                  ${isSelected ? "ring-4 ring-yellow-400 ring-inset" : ""}
-                  ${disabled ? "cursor-not-allowed" : "hover:brightness-110"}
+                  ${isLastFrom || isLastTo ? "!bg-yellow-400/70" : ""}
+                  ${isCheckedKing ? "!bg-red-500/80" : ""}
+                  ${isSelected ? "ring-4 ring-yellow-500 ring-inset" : ""}
+                  ${disabled ? "cursor-not-allowed opacity-95" : "hover:brightness-110 cursor-pointer"}
                 `}
               >
                 {piece && (
-                  <span className={piece.color === "w" ? "text-stone-900" : "text-stone-950"} style={{ textShadow: "0 1px 2px rgba(0,0,0,0.3)" }}>
+                  <span className={piece.color === "w" ? "text-stone-50" : "text-stone-950"} style={{ textShadow: piece.color === "w" ? "0 1px 2px rgba(0,0,0,0.6)" : "0 1px 2px rgba(255,255,255,0.3)" }}>
                     {PIECE_UNICODE[`${piece.color}${piece.type}`]}
                   </span>
                 )}
                 {isTarget && !piece && (
-                  <span className="absolute w-3 h-3 rounded-full bg-emerald-600/60" />
+                  <span className="absolute w-3 h-3 rounded-full bg-emerald-600/70" />
                 )}
                 {isTarget && piece && (
-                  <span className="absolute inset-1 rounded-md ring-2 ring-emerald-600/70" />
+                  <span className="absolute inset-1 rounded-md ring-4 ring-emerald-600/80" />
                 )}
               </button>
             );
